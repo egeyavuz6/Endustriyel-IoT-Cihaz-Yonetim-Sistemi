@@ -4,6 +4,8 @@ import com.argela.iot_device_management.entity.Device;
 import com.argela.iot_device_management.entity.DeviceCommand;
 import com.argela.iot_device_management.service.DeviceService;
 import com.argela.iot_device_management.service.DeviceCommandService;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -36,8 +38,9 @@ public class DeviceController {
     }
 
     @PostMapping
-    public Device createDevice(@RequestBody Device device) {
-        return deviceService.createDevice(device);
+    public ResponseEntity<Device> createDevice(@RequestBody Device device) {
+        Device createdDevice = deviceService.createDevice(device);
+        return ResponseEntity.status(HttpStatus.CREATED).body(createdDevice);//Oluşturulduğunda sadece 200 OK dönüyordu artık 201 Created dönecek.
     }
 
     @PutMapping("/{id}")

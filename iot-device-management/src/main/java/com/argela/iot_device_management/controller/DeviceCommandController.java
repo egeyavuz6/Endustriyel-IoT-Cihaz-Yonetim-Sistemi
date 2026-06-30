@@ -3,6 +3,8 @@ package com.argela.iot_device_management.controller;
 import com.argela.iot_device_management.entity.DeviceCommand;
 import com.argela.iot_device_management.service.DeviceCommandService;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
 
 import java.util.List;
 
@@ -27,8 +29,9 @@ public class DeviceCommandController {
     }
 
     @PostMapping
-    public DeviceCommand createCommand(@RequestBody DeviceCommand command) {
-        return deviceCommandService.createCommand(command);
+    public ResponseEntity<DeviceCommand> createCommand(@RequestBody DeviceCommand command) {
+        DeviceCommand createdCommand = deviceCommandService.createCommand(command);
+        return ResponseEntity.status(HttpStatus.CREATED).body(createdCommand);
     }
 
     @PutMapping("/{id}")
