@@ -3,6 +3,7 @@ package com.argela.iot_device_management.service;
 import com.argela.iot_device_management.entity.Device;
 import com.argela.iot_device_management.repository.DeviceRepository;
 import org.springframework.stereotype.Service;
+import com.argela.iot_device_management.exception.ResourceNotFoundException;
 
 import java.util.List;
 
@@ -21,7 +22,7 @@ public class DeviceService {
 
     public Device getDeviceById(Long id) {
         return deviceRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Device not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Device not found with id: " + id));
     }
 
     public Device createDevice(Device device) {
