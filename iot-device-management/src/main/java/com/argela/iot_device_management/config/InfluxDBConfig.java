@@ -8,8 +8,7 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class InfluxDBConfig {
-
-
+    
     @Value("${influxdb.url}")
     private String url;
 
