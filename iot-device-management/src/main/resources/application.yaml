@@ -1,6 +1,12 @@
 spring:
   application:
     name: iot-device-management
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:8180/realms/iot-device-management
+
 
   datasource:
     url: jdbc:postgresql://localhost:5432/device_management

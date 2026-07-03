@@ -1,8 +1,7 @@
 services:
   postgres:
     image: postgres:15
-    ports:
-      - "5432:5432"
+    ports: ["5432:5432"]
     environment:
       POSTGRES_DB: device_management
       POSTGRES_USER: admin
@@ -21,6 +20,28 @@ services:
     volumes:
       - influxdb_data:/var/lib/influxdb2
 
+  grafana:
+    image: grafana/grafana:latest
+    ports: ["3000:3000"]
+    environment:
+      GF_AUTH_GENERIC_OAUTH_ENABLED: "true"
+      GF_AUTH_GENERIC_OAUTH_NAME: "Keycloak"
+      GF_AUTH_GENERIC_OAUTH_CLIENT_ID: "grafana"
+      GF_AUTH_GENERIC_OAUTH_AUTH_URL: "http://keycloak:8180/realms/..."
+    volumes:
+      - grafana_data:/var/lib/grafana
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:21.1.1
+    environment:
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin123
+    command: start-dev
+    ports: ["8180:8080"]  
+
 volumes:
   postgres_data:
-  influxdb_data:    
+  influxdb_data:
+  grafana_data:
+  keycloak_data:
+  spring_app_data:
