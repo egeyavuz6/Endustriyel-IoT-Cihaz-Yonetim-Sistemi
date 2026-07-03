@@ -1,6 +1,8 @@
 package com.argela.iot_device_management.controller;
 
+import com.argela.iot_device_management.dto.TelemetryRequest;
 import com.argela.iot_device_management.service.TelemetryService;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -33,15 +35,8 @@ public class TelemetryController {
     }
 
     @PostMapping("/api/telemetry")
-    public ResponseEntity<String> createTelemetry(@RequestBody Map<String, Object> payload) {
-        Long deviceId = Long.valueOf(payload.get("deviceId").toString());
-        double temperature = Double.parseDouble(payload.get("temperature").toString());
-        double humidity = Double.parseDouble(payload.get("humidity").toString());
-        double pressure = Double.parseDouble(payload.get("pressure").toString());
-        double vibration = Double.parseDouble(payload.get("vibration").toString());
-
-        telemetryService.writeTelemetry(deviceId, temperature, humidity, pressure, vibration);
-
+    public ResponseEntity<String> createTelemetry(@Valid @RequestBody TelemetryRequest request) {
+        telemetryService.writeTelemetry(request);
         return ResponseEntity.status(HttpStatus.CREATED).body("Telemetry data saved.");
     }
 }

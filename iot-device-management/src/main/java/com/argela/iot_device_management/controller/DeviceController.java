@@ -6,6 +6,7 @@ import com.argela.iot_device_management.service.DeviceService;
 import com.argela.iot_device_management.service.DeviceCommandService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -48,6 +49,7 @@ public class DeviceController {
         return deviceService.updateDevice(id, device);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     public void deleteDevice(@PathVariable Long id) {
         deviceService.deleteDevice(id);

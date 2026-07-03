@@ -9,6 +9,7 @@ import com.influxdb.query.FluxTable;
 import com.influxdb.query.FluxRecord;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import com.argela.iot_device_management.dto.TelemetryRequest;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -80,15 +81,15 @@ public class TelemetryService {
         return result.isEmpty() ? null : result.get(0).get("value");
     }
 
-    public void writeTelemetry(Long deviceId, double temperature, double humidity, double pressure, double vibration) {
+    public void writeTelemetry(TelemetryRequest request) {
         WriteApiBlocking writeApi = influxDBClient.getWriteApiBlocking();
 
-        Point point = Point.measurement(    "device_telemetry")
-                .addTag("device_id", String.valueOf(deviceId))
-                .addField("temperature", temperature)
-                .addField("humidity", humidity)
-                .addField("pressure", pressure)
-                .addField("vibration", vibration)
+        Point point = Point.measurement("device_telemetry")
+                .addTag("device_id", String.valueOf(request.getDeviceId()))
+                .addField("temperature", request.getTemperature())
+                .addField("humidity", request.getHumidity())
+                .addField("pressure", request.getPressure())
+                .addField("vibration", request.getVibration())
                 .time(java.time.Instant.now(), WritePrecision.NS);
 
         writeApi.writePoint(bucket, org, point);
@@ -110,4 +111,5 @@ public class TelemetryService {
         }
         return results;
     }
+
 }
