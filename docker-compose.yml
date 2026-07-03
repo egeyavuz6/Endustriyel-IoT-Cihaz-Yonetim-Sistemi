@@ -38,6 +38,8 @@ services:
       KEYCLOAK_ADMIN_PASSWORD: admin123
     command: start-dev
     ports: ["8180:8080"]  
+    volumes:
+      - keycloak_data:/opt/keycloak/data
 
 volumes:
   postgres_data:
