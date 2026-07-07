@@ -24,7 +24,6 @@ public class DeviceService {
         return deviceRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Device not found with id: " + id));
     }
-
     public Device createDevice(Device device) {
         return deviceRepository.save(device);
     }
@@ -38,8 +37,12 @@ public class DeviceService {
         device.setStatus(updatedDevice.getStatus());
         return deviceRepository.save(device);
     }
-
     public void deleteDevice(Long id) {
         deviceRepository.deleteById(id);
+    }
+
+    public Device getDeviceBySerialNumber(String serialNumber) {
+        return deviceRepository.findBySerialNumber(serialNumber)
+                .orElseThrow(() -> new ResourceNotFoundException("Device not found with serial number: " + serialNumber));
     }
 }

@@ -112,4 +112,19 @@ public class TelemetryService {
         return results;
     }
 
+    public List<Map<String, Object>> getTelemetryByDeviceId(Long deviceId, int hours, String field) {
+        StringBuilder flux = new StringBuilder(String.format(
+                "from(bucket: \"%s\") " +
+                        "|> range(start: -%dh) " +
+                        "|> filter(fn: (r) => r.device_id == \"%s\")",
+                bucket, hours, deviceId
+        ));
+
+        if (field != null && !field.isEmpty()) {
+            flux.append(String.format(" |> filter(fn: (r) => r._field == \"%s\")", field));
+        }
+
+        return executeQuery(flux.toString());
+    }
+
 }

@@ -28,5 +28,14 @@ influxdb:
   org: myorg
   bucket: device_telemetry
 
+keycloak:
+  admin:
+    server-url: http://localhost:8180
+    realm: master
+    client-id: admin-cli
+    username: admin
+    password: admin123
+  target-realm: iot-device-management
+
 server:
   port: 8080

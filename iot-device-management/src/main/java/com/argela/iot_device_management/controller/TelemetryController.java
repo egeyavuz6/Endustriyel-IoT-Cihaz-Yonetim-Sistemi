@@ -1,6 +1,8 @@
 package com.argela.iot_device_management.controller;
 
 import com.argela.iot_device_management.dto.TelemetryRequest;
+import com.argela.iot_device_management.entity.Device;
+import com.argela.iot_device_management.service.DeviceService;
 import com.argela.iot_device_management.service.TelemetryService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -14,9 +16,11 @@ import java.util.Map;
 public class TelemetryController {
 
     private final TelemetryService telemetryService;
+    private final DeviceService deviceService;
 
-    public TelemetryController(TelemetryService telemetryService) {
+    public TelemetryController(TelemetryService telemetryService, DeviceService deviceService) {
         this.telemetryService = telemetryService;
+        this.deviceService = deviceService;
     }
 
     @GetMapping("/api/devices/{id}/telemetry")
@@ -38,5 +42,14 @@ public class TelemetryController {
     public ResponseEntity<String> createTelemetry(@Valid @RequestBody TelemetryRequest request) {
         telemetryService.writeTelemetry(request);
         return ResponseEntity.status(HttpStatus.CREATED).body("Telemetry data saved.");
+    }
+
+    @GetMapping("/api/devices/serial/{serialNumber}/telemetry")
+    public List<Map<String, Object>> getTelemetryBySerialNumber(
+            @PathVariable String serialNumber,
+            @RequestParam(defaultValue = "1") int hours,
+            @RequestParam(required = false) String field) {
+        Device device = deviceService.getDeviceBySerialNumber(serialNumber);
+        return telemetryService.getTelemetryByDeviceId(device.getId(), hours, field);
     }
 }
