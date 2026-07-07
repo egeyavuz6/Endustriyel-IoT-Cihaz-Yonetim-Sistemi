@@ -16,7 +16,7 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 url = "http://localhost:8086"
-token = "wS88u1JEbCx3spiP26u3BEfoVMsBkXRV5xyBX3N9dbGvjdagTNFvUy1Zzo0-IkwSkHzwbb_iIri-1ppjEq1_nw=="
+token = "MvE2nW6Z4GSjTJGsYY5r0gWmGbTXPSqTb3b9cc_e2BkzVmxFDA9mCsmoWcDzO-3s7WYFkLeaEXKk3O219y4atw=="
 org = "myorg"
 bucket = "device_telemetry"
 SPRING_BOOT_API = "http://localhost:8080/api/devices"
@@ -24,9 +24,30 @@ SPRING_BOOT_API = "http://localhost:8080/api/devices"
 client = InfluxDBClient(url=url, token=token, org=org)
 write_api = client.write_api(write_options=SYNCHRONOUS)
 
-def get_all_device_ids():
+KEYCLOAK_TOKEN_URL = "http://localhost:8180/realms/iot-device-management/protocol/openid-connect/token"
+CLIENT_ID = "iot-backend"
+CLIENT_SECRET = "pBZ9oQrl0cePqS03OE7oi77op43hYhxm"
+USERNAME = "ege_admin"
+PASSWORD = "egeruzgar02"
+
+def get_access_token():
+    data = {
+        "client_id": CLIENT_ID,
+        "client_secret": CLIENT_SECRET,
+        "username": USERNAME,
+        "password": PASSWORD,
+        "grant_type": "password"
+    }
+    response = requests.post(KEYCLOAK_TOKEN_URL, data=data)
+    response.raise_for_status()
+    token = response.json()["access_token"]
+    logger.info("Keycloak'tan token alındı.")
+    return token
+
+def get_all_device_ids(token):
     try:
-        response = requests.get(SPRING_BOOT_API)
+        headers = {"Authorization": f"Bearer {token}"}
+        response = requests.get(SPRING_BOOT_API, headers=headers)
         response.raise_for_status()
         devices = response.json()
         device_ids = [device["id"] for device in devices]
@@ -64,25 +85,37 @@ def write_with_retry(points, max_retries=3, delay_seconds=2):
     logger.error("Tüm deneme hakları tükendi, veri yazılamadı.")
     return False
 
-BATCH_SIZE = 4
-logger.info("Simülasyon başlatıldı.")
+BATCH_WRITE_SIZE = 10   # her 10 veri noktasında bir InfluxDB'ye yaz
+DURATION_SECONDS = 6 * 60 * 60   # 6 saat
+INTERVAL_SECONDS = 3   # her 3 saniyede bir veri üret
 
-device_ids = get_all_device_ids()
+logger.info("Simülasyon başlatıldı. 6 saat boyunca çalışacak.")
+
+keycloak_token = get_access_token()
+device_ids = get_all_device_ids(keycloak_token)
 
 if not device_ids:
     logger.error("Hiç cihaz bulunamadı, simülasyon durduruluyor.")
 else:
+    start_time = time.time()
     points_batch = []
 
-    for i in range(BATCH_SIZE):
+    while time.time() - start_time < DURATION_SECONDS:
         for device_id in device_ids:
             point = generate_sensor_data(device_id=device_id)
             points_batch.append(point)
             logger.info(f"Veri üretildi (device_id={device_id}): {point.to_line_protocol()}")
-        time.sleep(3)
 
-    logger.info(f"{len(points_batch)} veri noktası gönderiliyor...")
-    write_with_retry(points_batch)
+        # Belirli bir sayıya ulaşınca InfluxDB'ye yaz
+        if len(points_batch) >= BATCH_WRITE_SIZE:
+            write_with_retry(points_batch)
+            points_batch = []   # listeyi boşalt
+
+        time.sleep(INTERVAL_SECONDS)
+
+    # Döngü bitince, kalan (henüz yazılmamış) veri varsa onu da yaz
+    if points_batch:
+        write_with_retry(points_batch)
 
 client.close()
 logger.info("Simülasyon tamamlandı, bağlantı kapatıldı.")

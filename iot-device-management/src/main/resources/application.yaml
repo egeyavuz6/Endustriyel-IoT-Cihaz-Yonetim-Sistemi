@@ -24,7 +24,7 @@ spring:
 
 influxdb:
   url: http://localhost:8086
-  token: wS88u1JEbCx3spiP26u3BEfoVMsBkXRV5xyBX3N9dbGvjdagTNFvUy1Zzo0-IkwSkHzwbb_iIri-1ppjEq1_nw==
+  token: MvE2nW6Z4GSjTJGsYY5r0gWmGbTXPSqTb3b9cc_e2BkzVmxFDA9mCsmoWcDzO-3s7WYFkLeaEXKk3O219y4atw==
   org: myorg
   bucket: device_telemetry
 

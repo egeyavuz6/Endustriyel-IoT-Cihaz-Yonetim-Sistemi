@@ -20,7 +20,7 @@ public class InfluxDBConfig {
 
     @Bean
     public InfluxDBClient influxDBClient() {
-        //System.out.println("TOKEN: [" + token + "]");   doğru dönüyor mu diye kontrol
+        //System.out.println("TOKEN: [" + token + "]");   doğru dönüyor mu diye kontrol 401 hatası alıyordum.
         //System.out.println("URL: [" + url + "]");
         //System.out.println("ORG: [" + org + "]");
         return InfluxDBClientFactory.create(url, token.toCharArray(), org);
