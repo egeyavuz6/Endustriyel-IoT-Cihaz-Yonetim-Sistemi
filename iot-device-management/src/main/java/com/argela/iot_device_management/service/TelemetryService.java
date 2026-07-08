@@ -54,6 +54,7 @@ public class TelemetryService {
 
     public Map<String, Object> getTelemetryStats(Long deviceId) {
         Map<String, Object> stats = new HashMap<>();
+
         String [] fields = {"temperature", "humidity", "pressure", "vibration"};
         String [] aggregations = {"mean", "max", "min", "count"};
 
@@ -70,7 +71,7 @@ public class TelemetryService {
     private Object getAggregatedValue(Long deviceId, String field, String aggregationFunction) {
         String flux = String.format(
                 "from(bucket: \"%s\") " +
-                        "|> range(start: -1h) " +
+                        "|> range(start: 0) " +
                         "|> filter(fn: (r) => r.device_id == \"%s\") " +
                         "|> filter(fn: (r) => r._field == \"%s\") " +
                         "|> %s()",
