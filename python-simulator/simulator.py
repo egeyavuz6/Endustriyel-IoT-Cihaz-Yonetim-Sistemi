@@ -86,10 +86,10 @@ def write_with_retry(points, max_retries=3, delay_seconds=2):
     return False
 
 BATCH_WRITE_SIZE = 10   # her 10 veri noktasında bir InfluxDB'ye yaz
-DURATION_SECONDS = 6 * 60 * 60   # 6 saat
+DURATION_SECONDS = 60*5    # 300 saniye
 INTERVAL_SECONDS = 3   # her 3 saniyede bir veri üret
 
-logger.info("Simülasyon başlatıldı. 6 saat boyunca çalışacak.")
+logger.info("Simülasyon başlatıldı. 300 saniye boyunca çalışacak.")
 
 keycloak_token = get_access_token()
 device_ids = get_all_device_ids(keycloak_token)
