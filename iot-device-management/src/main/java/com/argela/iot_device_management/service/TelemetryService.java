@@ -31,12 +31,12 @@ public class TelemetryService {
         this.influxDBClient = influxDBClient;
     }
 
-    public List<Map<String, Object>> getTelemetryByDeviceId(Long deviceId) {
+    public List<Map<String, Object>> getTelemetryByDeviceId(Long deviceId, int hours) {
         String flux = String.format(
                 "from(bucket: \"%s\") " +
-                        "|> range(start: -1h) " +
+                        "|> range(start: -%dh) " +
                         "|> filter(fn: (r) => r.device_id == \"%s\")",
-                bucket, deviceId
+                bucket, hours, deviceId
         );
         return executeQuery(flux);
     }
@@ -44,7 +44,7 @@ public class TelemetryService {
     public List<Map<String, Object>> getLatestTelemetry(Long deviceId) {
         String flux = String.format(
                 "from(bucket: \"%s\") " +
-                        "|> range(start: -1h) " +
+                        "|> range(start: 0) " +
                         "|> filter(fn: (r) => r.device_id == \"%s\") " +
                         "|> last()",
                 bucket, deviceId

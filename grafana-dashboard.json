@@ -484,7 +484,7 @@
                     "group": "influxdb",
                     "kind": "DataQuery",
                     "spec": {
-                      "query": "from(bucket: \"device_telemetry\")\r\n  |> range(start: -24h)\r\n  |> filter(fn: (r) => contains(value: r.device_id, set: ${device_id:json}))\r\n  |> filter(fn: (r) => r._field == \"humidity\")"
+                      "query": "from(bucket: \"device_telemetry\")\r\n  |> range(start: -7d)\r\n  |> filter(fn: (r) => contains(value: r.device_id, set: ${device_id:json}))\r\n  |> filter(fn: (r) => r._field == \"humidity\")"
                     },
                     "version": "v0"
                   },
@@ -813,10 +813,10 @@
       "1d"
     ],
     "fiscalYearStartMonth": 0,
-    "from": "2026-07-06T15:15:27.374Z",
+    "from": "2026-07-08T13:49:55.819Z",
     "hideTimepicker": false,
     "timezone": "browser",
-    "to": "2026-07-06T15:20:30.781Z"
+    "to": "2026-07-08T13:55:29.797Z"
   },
   "title": "Device Telemetry Dashboard",
   "variables": [
@@ -869,8 +869,8 @@
       "spec": {
         "allowCustomValue": true,
         "current": {
-          "text": "mean",
-          "value": "mean"
+          "text": "max",
+          "value": "max"
         },
         "hide": "dontHide",
         "includeAll": false,

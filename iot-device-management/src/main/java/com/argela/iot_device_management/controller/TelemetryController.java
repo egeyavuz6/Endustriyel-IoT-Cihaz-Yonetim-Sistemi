@@ -24,8 +24,10 @@ public class TelemetryController {
     }
 
     @GetMapping("/api/devices/{id}/telemetry")
-    public List<Map<String, Object>> getTelemetry(@PathVariable Long id) {
-        return telemetryService.getTelemetryByDeviceId(id);
+    public List<Map<String, Object>> getTelemetry(
+            @PathVariable Long id,
+            @RequestParam(defaultValue = "24") int hours) {
+        return telemetryService.getTelemetryByDeviceId(id, hours);
     }
 
     @GetMapping("/api/devices/{id}/telemetry/latest")
