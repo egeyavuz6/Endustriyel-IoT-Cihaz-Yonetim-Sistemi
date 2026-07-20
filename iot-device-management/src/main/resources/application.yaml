@@ -37,5 +37,12 @@ keycloak:
     password: admin123
   target-realm: iot-device-management
 
+springdoc:
+  swagger-ui:
+    oauth:
+      client-id: iot-backend
+      client-secret: 1h1CUC3kXAzTD1n8x295cRW3eMyiyADv
+      use-basic-authentication-with-access-code-grant: false
+
 server:
   port: 8080
