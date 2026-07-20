@@ -16,7 +16,7 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 url = "http://localhost:8086"
-token = "MvE2nW6Z4GSjTJGsYY5r0gWmGbTXPSqTb3b9cc_e2BkzVmxFDA9mCsmoWcDzO-3s7WYFkLeaEXKk3O219y4atw=="
+token = "lxgeRxdVMiqdvE1Feae905iOGLTmgp7opDcHiB5I0OeHVkqQ5XsNIOm8oTLLJAQGI9p4_l1S1IkPVOPRlgBDOw=="
 org = "myorg"
 bucket = "device_telemetry"
 SPRING_BOOT_API = "http://localhost:8080/api/devices"
@@ -26,9 +26,9 @@ write_api = client.write_api(write_options=SYNCHRONOUS)
 
 KEYCLOAK_TOKEN_URL = "http://localhost:8180/realms/iot-device-management/protocol/openid-connect/token"
 CLIENT_ID = "iot-backend"
-CLIENT_SECRET = "pBZ9oQrl0cePqS03OE7oi77op43hYhxm"
+CLIENT_SECRET = "1h1CUC3kXAzTD1n8x295cRW3eMyiyADv"
 USERNAME = "ege_admin"
-PASSWORD = "egeruzgar02"
+PASSWORD = "admin123"
 
 def get_access_token():
     data = {
@@ -86,10 +86,10 @@ def write_with_retry(points, max_retries=3, delay_seconds=2):
     return False
 
 BATCH_WRITE_SIZE = 10   # her 10 veri noktasında bir InfluxDB'ye yaz
-DURATION_SECONDS = 60*5    # 300 saniye
+DURATION_SECONDS = 60*60    # 3600 saniye
 INTERVAL_SECONDS = 3   # her 3 saniyede bir veri üret
 
-logger.info("Simülasyon başlatıldı. 300 saniye boyunca çalışacak.")
+logger.info("Simülasyon başlatıldı. 3600 saniye boyunca çalışacak.")
 
 keycloak_token = get_access_token()
 device_ids = get_all_device_ids(keycloak_token)

@@ -36,7 +36,7 @@
                   "hidden": false,
                   "query": {
                     "datasource": {
-                      "name": "efrh7ba9mopa8e"
+                      "name": "bfsnoaku753i8d"
                     },
                     "group": "influxdb",
                     "kind": "DataQuery",

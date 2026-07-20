@@ -1,0 +1,20 @@
+api:
+  base_url: "http://localhost:8080"
+  keycloak_url: "http://localhost:8180"
+  realm: "iot-device-management"
+  client_id: "iot-backend"
+  client_secret: "1h1CUC3kXAzTD1n8x295cRW3eMyiyADv"
+  username: "ege_admin"
+  password: "admin123"
+
+influxdb:
+  url: "http://localhost:8086"
+  token: "lxgeRxdVMiqdvE1Feae905iOGLTmgp7opDcHiB5I0OeHVkqQ5XsNIOm8oTLLJAQGI9p4_l1S1IkPVOPRlgBDOw=="
+  org: "myorg"
+  bucket: "device_telemetry"
+
+simulation:
+  interval_seconds: 3
+  batch_write_size: 10
+  duration_seconds: 300
+  device_refresh_interval: 600
