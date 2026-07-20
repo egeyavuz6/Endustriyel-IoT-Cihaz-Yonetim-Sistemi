@@ -31,12 +31,12 @@ public class TelemetryService {
         this.influxDBClient = influxDBClient;
     }
 
-    public List<Map<String, Object>> getTelemetryByDeviceId(Long deviceId) {
+    public List<Map<String, Object>> getTelemetryByDeviceId(Long deviceId, int hours) {
         String flux = String.format(
                 "from(bucket: \"%s\") " +
-                        "|> range(start: -1h) " +
+                        "|> range(start: -%dh) " +
                         "|> filter(fn: (r) => r.device_id == \"%s\")",
-                bucket, deviceId
+                bucket, hours, deviceId
         );
         return executeQuery(flux);
     }
@@ -44,7 +44,7 @@ public class TelemetryService {
     public List<Map<String, Object>> getLatestTelemetry(Long deviceId) {
         String flux = String.format(
                 "from(bucket: \"%s\") " +
-                        "|> range(start: -1h) " +
+                        "|> range(start: 0) " +
                         "|> filter(fn: (r) => r.device_id == \"%s\") " +
                         "|> last()",
                 bucket, deviceId
@@ -54,6 +54,7 @@ public class TelemetryService {
 
     public Map<String, Object> getTelemetryStats(Long deviceId) {
         Map<String, Object> stats = new HashMap<>();
+
         String [] fields = {"temperature", "humidity", "pressure", "vibration"};
         String [] aggregations = {"mean", "max", "min", "count"};
 
@@ -70,7 +71,7 @@ public class TelemetryService {
     private Object getAggregatedValue(Long deviceId, String field, String aggregationFunction) {
         String flux = String.format(
                 "from(bucket: \"%s\") " +
-                        "|> range(start: -1h) " +
+                        "|> range(start: 0) " +
                         "|> filter(fn: (r) => r.device_id == \"%s\") " +
                         "|> filter(fn: (r) => r._field == \"%s\") " +
                         "|> %s()",
@@ -110,6 +111,21 @@ public class TelemetryService {
             }
         }
         return results;
+    }
+
+    public List<Map<String, Object>> getTelemetryByDeviceId(Long deviceId, int hours, String field) {
+        StringBuilder flux = new StringBuilder(String.format(
+                "from(bucket: \"%s\") " +
+                        "|> range(start: -%dh) " +
+                        "|> filter(fn: (r) => r.device_id == \"%s\")",
+                bucket, hours, deviceId
+        ));
+
+        if (field != null && !field.isEmpty()) {
+            flux.append(String.format(" |> filter(fn: (r) => r._field == \"%s\")", field));
+        }
+
+        return executeQuery(flux.toString());
     }
 
 }

@@ -38,12 +38,14 @@ public class DeviceController {
         return deviceCommandService.getCommandsByDeviceId(id);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
     public ResponseEntity<Device> createDevice(@RequestBody Device device) {
         Device createdDevice = deviceService.createDevice(device);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdDevice);//Oluşturulduğunda sadece 200 OK dönüyordu artık 201 Created dönecek.
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{id}")
     public Device updateDevice(@PathVariable Long id, @RequestBody Device device) {
         return deviceService.updateDevice(id, device);

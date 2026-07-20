@@ -1,8 +1,6 @@
 package com.argela.iot_device_management.dto;
 
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.Max;
 import lombok.Data;
 
 @Data
