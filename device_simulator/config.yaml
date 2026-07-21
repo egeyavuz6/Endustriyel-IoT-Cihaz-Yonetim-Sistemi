@@ -8,24 +8,7 @@ simulation:
   interval_seconds: 3
   batch_write_size: 10
   duration_seconds: 300
-  device_refresh_interval: 60
-
-telemetry_fields:
-  - name: "temperature"
-    min: 15.0
-    max: 35.0
-  - name: "humidity"
-    min: 30.0
-    max: 70.0
-  - name: "pressure"
-    min: 1000.0
-    max: 1020.0
-  - name: "vibration"
-    min: 0.0
-    max: 5.0
-  - name: "battery_level"
-    min: 0.0
-    max: 100.0
+  device_refresh_interval: 30
 
 postgres:
   host: "localhost"

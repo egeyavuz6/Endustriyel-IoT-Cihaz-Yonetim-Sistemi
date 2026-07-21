@@ -24,7 +24,10 @@ def main():
     config = load_config()
 
     postgres_client = PostgresClient(config)
-    telemetry_generator = TelemetryGenerator(config['telemetry_fields'])
+
+    telemetry_fields = postgres_client.get_telemetry_fields()
+    telemetry_generator = TelemetryGenerator(telemetry_fields)
+
     command_handler = CommandHandler(postgres_client)
 
     influx_client = InfluxDBClient(
@@ -71,7 +74,11 @@ def main():
 
     while time.time() - start_time < duration:
         if time.time() - last_refresh >= device_refresh_interval:
-            logger.info("Cihaz listesi kontrol ediliyor...")
+            logger.info("Cihaz listesi ve telemetry field'lar kontrol ediliyor...")
+
+            fresh_fields = postgres_client.get_telemetry_fields()
+            telemetry_generator.fields_config = fresh_fields
+
             current_statuses = postgres_client.get_all_devices()
             existing_ids = set(device_threads.keys())
 

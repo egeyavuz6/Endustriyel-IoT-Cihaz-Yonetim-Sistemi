@@ -55,3 +55,17 @@ class PostgresClient:
                 logger.info(f"Komut {command_id} EXECUTED olarak işaretlendi.")
         finally:
             conn.close()
+
+    def get_telemetry_fields(self):
+        conn = self.get_connection()
+        try:
+            with conn.cursor(cursor_factory=RealDictCursor) as cursor:
+                cursor.execute("SELECT name, min_value, max_value FROM telemetry_fields")
+                rows = cursor.fetchall()
+                fields = [
+                    {"name": row["name"], "min": row["min_value"], "max": row["max_value"]}
+                    for row in rows
+                ]
+                return fields
+        finally:
+            conn.close()
