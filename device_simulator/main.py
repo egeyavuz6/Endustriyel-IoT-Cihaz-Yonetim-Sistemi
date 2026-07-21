@@ -2,8 +2,7 @@ import time
 import threading
 from utils.config_loader import load_config
 from utils.logger import setup_logger
-from auth.keycloak_client import KeycloakClient
-from api.api_client import ApiClient
+from database.postgres_client import PostgresClient
 from device.telemetry_generator import TelemetryGenerator
 from device.command_handler import CommandHandler
 from influxdb_client import InfluxDBClient
@@ -24,12 +23,9 @@ def simulate_device(device_id, stop_event, telemetry_generator, command_handler,
 def main():
     config = load_config()
 
-    keycloak_client = KeycloakClient(config)
-    token = keycloak_client.get_access_token()
-
-    api_client = ApiClient(config, token)
+    postgres_client = PostgresClient(config)
     telemetry_generator = TelemetryGenerator(config['telemetry_fields'])
-    command_handler = CommandHandler(api_client)
+    command_handler = CommandHandler(postgres_client)
 
     influx_client = InfluxDBClient(
         url=config['influxdb']['url'],
@@ -44,7 +40,7 @@ def main():
     duration = config['simulation']['duration_seconds']
     device_refresh_interval = config['simulation']['device_refresh_interval']
 
-    device_statuses = api_client.get_all_devices()
+    device_statuses = postgres_client.get_all_devices()
 
     if not device_statuses:
         logger.error("Hiç cihaz bulunamadı, simülasyon durduruluyor.")
@@ -62,6 +58,8 @@ def main():
         t.start()
         logger.info(f"Cihaz {device_id} için yeni thread başlatıldı.")
 
+    logger.info(f"Simülasyon başlatıldı. {duration} saniye boyunca çalışacak.")
+
     for device_id, status in device_statuses.items():
         if status == "ACTIVE":
             start_device_thread(device_id)
@@ -73,10 +71,8 @@ def main():
 
     while time.time() - start_time < duration:
         if time.time() - last_refresh >= device_refresh_interval:
-            logger.info("Cihaz listesi ve config kontrol ediliyor")
-            fresh_config = load_config()
-            telemetry_generator.fields_config = fresh_config['telemetry_fields']
-            current_statuses = api_client.get_all_devices()
+            logger.info("Cihaz listesi kontrol ediliyor...")
+            current_statuses = postgres_client.get_all_devices()
             existing_ids = set(device_threads.keys())
 
             for device_id, status in current_statuses.items():
@@ -94,6 +90,9 @@ def main():
                 stop_event.set()
                 logger.info(f"Cihaz {removed_id} silinmiş, durduruluyor.")
                 del device_threads[removed_id]
+
+            if not device_threads:
+                logger.warning("Şu an hiç aktif cihaz yok, sistem beklemede...")
 
             last_refresh = time.time()
 
