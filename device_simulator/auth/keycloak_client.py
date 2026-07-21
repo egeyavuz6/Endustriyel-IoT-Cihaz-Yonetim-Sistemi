@@ -16,12 +16,10 @@ class KeycloakClient:
         data = {
             "client_id": self.client_id,
             "client_secret": self.client_secret,
-            "username": self.username,
-            "password": self.password,
-            "grant_type": "password"
+            "grant_type": "client_credentials"
         }
         response = requests.post(self.token_url, data=data)
         response.raise_for_status()
         token = response.json()["access_token"]
-        logger.info("Keycloak'tan token alındı.")
+        logger.info("Keycloak'tan token alındı (Client Credentials).")
         return token

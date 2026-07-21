@@ -28,7 +28,7 @@ def main():
     token = keycloak_client.get_access_token()
 
     api_client = ApiClient(config, token)
-    telemetry_generator = TelemetryGenerator()
+    telemetry_generator = TelemetryGenerator(config['telemetry_fields'])
     command_handler = CommandHandler(api_client)
 
     influx_client = InfluxDBClient(
@@ -73,7 +73,9 @@ def main():
 
     while time.time() - start_time < duration:
         if time.time() - last_refresh >= device_refresh_interval:
-            logger.info("Cihaz listesi kontrol ediliyor...")
+            logger.info("Cihaz listesi ve config kontrol ediliyor")
+            fresh_config = load_config()
+            telemetry_generator.fields_config = fresh_config['telemetry_fields']
             current_statuses = api_client.get_all_devices()
             existing_ids = set(device_threads.keys())
 
