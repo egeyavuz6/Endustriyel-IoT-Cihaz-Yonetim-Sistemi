@@ -18,9 +18,11 @@ class ApiClient:
             response = requests.get(url, headers=self.get_headers())
             response.raise_for_status()
             devices = response.json()
-            device_ids = [device["id"] for device in devices]
-            logger.info(f"Spring Boot'tan {len(device_ids)} cihaz bulundu: {device_ids}")
-            return device_ids
+            active_devices = {
+                device["id"]: device["status"] 
+                for device in devices}
+            logger.info(f"Spring Boot'tan {len(active_devices)} cihaz bulundu.")
+            return active_devices
         except Exception as e:
             logger.error(f"Cihaz listesi alınamadı: {e}")
 

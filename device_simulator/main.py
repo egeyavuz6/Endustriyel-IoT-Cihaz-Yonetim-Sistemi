@@ -12,14 +12,13 @@ from influxdb_client.client.write_api import SYNCHRONOUS
 logger = setup_logger(__name__)
 
 
-def simulate_device(device_id, telemetry_generator, command_handler, write_api, bucket, org, interval, duration):
-    start_time = time.time()
-    while time.time() - start_time < duration:
+def simulate_device(device_id, stop_event, telemetry_generator, command_handler, write_api, bucket, org, interval):
+    while not stop_event.is_set():
         point = telemetry_generator.generate(device_id)
         write_api.write(bucket=bucket, org=org, record=point)
         command_handler.check_and_execute_commands(device_id)
         time.sleep(interval)
-    logger.info(f"Cihaz {device_id} simülasyonu tamamlandı.")
+    logger.info(f"Cihaz {device_id} için thread durduruldu.")
 
 
 def main():
@@ -41,31 +40,72 @@ def main():
     bucket = config['influxdb']['bucket']
     org = config['influxdb']['org']
 
-    device_ids = api_client.get_all_devices()
+    interval = config['simulation']['interval_seconds']
+    duration = config['simulation']['duration_seconds']
+    device_refresh_interval = config['simulation']['device_refresh_interval']
 
-    if not device_ids:
+    device_statuses = api_client.get_all_devices()
+
+    if not device_statuses:
         logger.error("Hiç cihaz bulunamadı, simülasyon durduruluyor.")
         return
 
-    interval = config['simulation']['interval_seconds']
-    duration = config['simulation']['duration_seconds']
+    device_threads = {}
 
-    logger.info(f"Simülasyon başlatıldı. {len(device_ids)} cihaz, {duration} saniye boyunca paralel çalışacak.")
-
-    threads = []
-    for device_id in device_ids:
+    def start_device_thread(device_id):
+        stop_event = threading.Event()
         t = threading.Thread(
             target=simulate_device,
-            args=(device_id, telemetry_generator, command_handler, write_api, bucket, org, interval, duration)
+            args=(device_id, stop_event, telemetry_generator, command_handler, write_api, bucket, org, interval)
         )
-        threads.append(t)
+        device_threads[device_id] = (t, stop_event)
         t.start()
+        logger.info(f"Cihaz {device_id} için yeni thread başlatıldı.")
 
-    for t in threads:
+    for device_id, status in device_statuses.items():
+        if status == "ACTIVE":
+            start_device_thread(device_id)
+        else:
+            logger.info(f"Cihaz {device_id} ACTIVE değil (durum: {status}), thread başlatılmadı.")
+
+    start_time = time.time()
+    last_refresh = time.time()
+
+    while time.time() - start_time < duration:
+        if time.time() - last_refresh >= device_refresh_interval:
+            logger.info("Cihaz listesi kontrol ediliyor...")
+            current_statuses = api_client.get_all_devices()
+            existing_ids = set(device_threads.keys())
+
+            for device_id, status in current_statuses.items():
+                if status == "ACTIVE" and device_id not in existing_ids:
+                    start_device_thread(device_id)
+                elif status != "ACTIVE" and device_id in existing_ids:
+                    _, stop_event = device_threads[device_id]
+                    stop_event.set()
+                    logger.info(f"Cihaz {device_id} artık ACTIVE değil (durum: {status}), durduruluyor.")
+                    del device_threads[device_id]
+
+            removed_ids = existing_ids - set(current_statuses.keys())
+            for removed_id in removed_ids:
+                _, stop_event = device_threads[removed_id]
+                stop_event.set()
+                logger.info(f"Cihaz {removed_id} silinmiş, durduruluyor.")
+                del device_threads[removed_id]
+
+            last_refresh = time.time()
+
+        time.sleep(1)
+
+    logger.info("Süre doldu, tüm thread'lere durdurma sinyali gönderiliyor.")
+    for device_id, (t, stop_event) in device_threads.items():
+        stop_event.set()
+
+    for device_id, (t, stop_event) in device_threads.items():
         t.join()
 
     influx_client.close()
-    logger.info("Tüm cihazların simülasyonu tamamlandı.")
+    logger.info("Simülasyon tamamlandı.")
 
 
 if __name__ == "__main__":

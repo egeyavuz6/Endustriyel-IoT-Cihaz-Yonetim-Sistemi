@@ -17,4 +17,4 @@ simulation:
   interval_seconds: 3
   batch_write_size: 10
   duration_seconds: 300
-  device_refresh_interval: 600
+  device_refresh_interval: 30
