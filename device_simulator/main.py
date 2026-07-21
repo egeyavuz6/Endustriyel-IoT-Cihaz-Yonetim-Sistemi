@@ -1,4 +1,5 @@
 import time
+import threading
 from utils.config_loader import load_config
 from utils.logger import setup_logger
 from auth.keycloak_client import KeycloakClient
@@ -9,6 +10,16 @@ from influxdb_client import InfluxDBClient
 from influxdb_client.client.write_api import SYNCHRONOUS
 
 logger = setup_logger(__name__)
+
+
+def simulate_device(device_id, telemetry_generator, command_handler, write_api, bucket, org, interval, duration):
+    start_time = time.time()
+    while time.time() - start_time < duration:
+        point = telemetry_generator.generate(device_id)
+        write_api.write(bucket=bucket, org=org, record=point)
+        command_handler.check_and_execute_commands(device_id)
+        time.sleep(interval)
+    logger.info(f"Cihaz {device_id} simülasyonu tamamlandı.")
 
 
 def main():
@@ -38,32 +49,23 @@ def main():
 
     interval = config['simulation']['interval_seconds']
     duration = config['simulation']['duration_seconds']
-    batch_size = config['simulation']['batch_write_size']
 
-    logger.info(f"Simülasyon başlatıldı. {duration} saniye boyunca çalışacak.")
+    logger.info(f"Simülasyon başlatıldı. {len(device_ids)} cihaz, {duration} saniye boyunca paralel çalışacak.")
 
-    start_time = time.time()
-    points_batch = []
+    threads = []
+    for device_id in device_ids:
+        t = threading.Thread(
+            target=simulate_device,
+            args=(device_id, telemetry_generator, command_handler, write_api, bucket, org, interval, duration)
+        )
+        threads.append(t)
+        t.start()
 
-    while time.time() - start_time < duration:
-        for device_id in device_ids:
-            point = telemetry_generator.generate(device_id)
-            points_batch.append(point)
-
-            command_handler.check_and_execute_commands(device_id)
-
-        if len(points_batch) >= batch_size:
-            write_api.write(bucket=bucket, org=org, record=points_batch)
-            logger.info(f"{len(points_batch)} veri noktası yazıldı.")
-            points_batch = []
-
-        time.sleep(interval)
-
-    if points_batch:
-        write_api.write(bucket=bucket, org=org, record=points_batch)
+    for t in threads:
+        t.join()
 
     influx_client.close()
-    logger.info("Simülasyon tamamlandı.")
+    logger.info("Tüm cihazların simülasyonu tamamlandı.")
 
 
 if __name__ == "__main__":
