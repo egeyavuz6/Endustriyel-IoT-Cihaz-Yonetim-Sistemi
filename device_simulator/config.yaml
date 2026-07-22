@@ -1,0 +1,18 @@
+influxdb:
+  url: "http://localhost:8086"
+  token: "lxgeRxdVMiqdvE1Feae905iOGLTmgp7opDcHiB5I0OeHVkqQ5XsNIOm8oTLLJAQGI9p4_l1S1IkPVOPRlgBDOw=="
+  org: "myorg"
+  bucket: "device_telemetry"
+
+simulation:
+  interval_seconds: 3
+  batch_write_size: 10
+  duration_seconds: 60
+  device_refresh_interval: 15
+
+postgres:
+  host: "localhost"
+  port: 5432
+  database: "device_management"
+  user: "admin"
+  password: "admin123"

@@ -36,7 +36,7 @@
                   "hidden": false,
                   "query": {
                     "datasource": {
-                      "name": "efrh7ba9mopa8e"
+                      "name": "bfsnoaku753i8d"
                     },
                     "group": "influxdb",
                     "kind": "DataQuery",
@@ -157,7 +157,7 @@
                   "hidden": false,
                   "query": {
                     "datasource": {
-                      "name": "efrh7ba9mopa8e"
+                      "name": "bfsnoaku753i8d"
                     },
                     "group": "influxdb",
                     "kind": "DataQuery",
@@ -250,12 +250,12 @@
                   "hidden": false,
                   "query": {
                     "datasource": {
-                      "name": "efrh7ba9mopa8e"
+                      "name": "bfsnoaku753i8d"
                     },
                     "group": "influxdb",
                     "kind": "DataQuery",
                     "spec": {
-                      "query": "from(bucket: \"device_telemetry\")\r\n  |> range(start: -7d)\r\n  |> filter(fn: (r) => contains(value: r.device_id, set: ${device_id:json}))\r\n  |> filter(fn: (r) => r._field == \"${stat_field}\")\r\n  |> ${stat_type}()"
+                      "query": "from(bucket: \"device_telemetry\")\r\n  |> range(start: -7d)\r\n  |> filter(fn: (r) => contains(value: r.device_id, set: ${device_id:json}))\r\n  |> filter(fn: (r) => r._field == \"${field}\")\r\n  |> ${stat_type}()"
                     },
                     "version": "v0"
                   },
@@ -281,7 +281,7 @@
                   "fixedColor": "#ad46ff",
                   "mode": "thresholds"
                 },
-                "displayName": "${stat_field} ${__field.labels.device_id}",
+                "displayName": "${field} / id:  ${__field.labels.device_id}",
                 "thresholds": {
                   "mode": "absolute",
                   "steps": [
@@ -302,11 +302,11 @@
               "colorMode": "value",
               "graphMode": "none",
               "justifyMode": "auto",
-              "orientation": "horizontal",
+              "orientation": "auto",
               "percentChangeColorMode": "standard",
               "reduceOptions": {
                 "calcs": [
-                  "mean"
+                  "max"
                 ],
                 "fields": "",
                 "values": false
@@ -333,7 +333,7 @@
                   "hidden": false,
                   "query": {
                     "datasource": {
-                      "name": "efrh7ba9mopa8e"
+                      "name": "bfsnoaku753i8d"
                     },
                     "group": "influxdb",
                     "kind": "DataQuery",
@@ -479,7 +479,7 @@
                   "hidden": false,
                   "query": {
                     "datasource": {
-                      "name": "efrh7ba9mopa8e"
+                      "name": "bfsnoaku753i8d"
                     },
                     "group": "influxdb",
                     "kind": "DataQuery",
@@ -596,7 +596,7 @@
                   "hidden": false,
                   "query": {
                     "datasource": {
-                      "name": "efrh7ba9mopa8e"
+                      "name": "bfsnoaku753i8d"
                     },
                     "group": "influxdb",
                     "kind": "DataQuery",
@@ -813,10 +813,10 @@
       "1d"
     ],
     "fiscalYearStartMonth": 0,
-    "from": "2026-07-08T13:49:55.819Z",
+    "from": "2026-07-20T22:10:51.118Z",
     "hideTimepicker": false,
     "timezone": "browser",
-    "to": "2026-07-08T13:55:29.797Z"
+    "to": "2026-07-21T19:37:25.486Z"
   },
   "title": "Device Telemetry Dashboard",
   "variables": [
@@ -826,18 +826,22 @@
         "allowCustomValue": true,
         "current": {
           "text": [
-            "1",
-            "3",
-            "4",
-            "8",
-            "9"
+            "16",
+            "17",
+            "19",
+            "15",
+            "12",
+            "13",
+            "14"
           ],
           "value": [
-            "1",
-            "3",
-            "4",
-            "8",
-            "9"
+            "16",
+            "17",
+            "19",
+            "15",
+            "12",
+            "13",
+            "14"
           ]
         },
         "definition": "import \"influxdata/influxdb/schema\"\r\nschema.tagValues(bucket: \"device_telemetry\", tag: \"device_id\")\r\n",
@@ -848,7 +852,7 @@
         "options": [],
         "query": {
           "datasource": {
-            "name": "efrh7ba9mopa8e"
+            "name": "bfsnoaku753i8d"
           },
           "group": "influxdb",
           "kind": "DataQuery",
@@ -869,8 +873,8 @@
       "spec": {
         "allowCustomValue": true,
         "current": {
-          "text": "max",
-          "value": "max"
+          "text": "min",
+          "value": "min"
         },
         "hide": "dontHide",
         "includeAll": false,
@@ -883,21 +887,35 @@
       }
     },
     {
-      "kind": "CustomVariable",
+      "kind": "QueryVariable",
       "spec": {
         "allowCustomValue": true,
         "current": {
           "text": "temperature",
           "value": "temperature"
         },
+        "definition": "import \"influxdata/influxdb/schema\"\r\nschema.fieldKeys(bucket: \"device_telemetry\")",
         "hide": "dontHide",
         "includeAll": false,
         "multi": false,
-        "name": "stat_field",
+        "name": "field",
         "options": [],
-        "query": "temperature,humidity,pressure,vibration",
+        "query": {
+          "datasource": {
+            "name": "bfsnoaku753i8d"
+          },
+          "group": "influxdb",
+          "kind": "DataQuery",
+          "spec": {
+            "query": "import \"influxdata/influxdb/schema\"\r\nschema.fieldKeys(bucket: \"device_telemetry\")"
+          },
+          "version": "v0"
+        },
+        "refresh": "onDashboardLoad",
+        "regex": "",
+        "regexApplyTo": "value",
         "skipUrlSync": false,
-        "valuesFormat": "csv"
+        "sort": "disabled"
       }
     }
   ]
