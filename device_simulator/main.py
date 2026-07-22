@@ -95,6 +95,9 @@ def main():
             current_statuses = postgres_client.get_all_devices()
             existing_ids = set(device_threads.keys())
 
+            for device_id in current_statuses.keys():
+                command_handler.check_and_execute_commands(device_id)
+
             for device_id, status in current_statuses.items():
                 if status == "ACTIVE" and device_id not in existing_ids:
                     start_device_thread(device_id)
