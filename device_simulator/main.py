@@ -1,5 +1,6 @@
 import time
 import threading
+import argparse
 from utils.config_loader import load_config
 from utils.logger import setup_logger
 from database.postgres_client import PostgresClient
@@ -19,11 +20,23 @@ def simulate_device(device_id, stop_event, telemetry_generator, command_handler,
         time.sleep(interval)
     logger.info(f"Cihaz {device_id} için thread durduruldu.")
 
+def parse_arguments():
+    parser = argparse.ArgumentParser(description="IoT Cihaz Simülatörü")
+    parser.add_argument("--devices", type=int, default=0, help="Kaç yeni cihaz oluşturulacak")
+    parser.add_argument("--interval", type=int, default=None, help="Veri üretim aralığı (saniye)")
+    parser.add_argument("--config", type=str, default="config.yaml", help="Config dosyasının yolu")
+    return parser.parse_args()
 
 def main():
-    config = load_config()
+    args = parse_arguments()
+    config = load_config(args.config)
 
     postgres_client = PostgresClient(config)
+
+    if args.devices > 0:
+        logger.info(f"{args.devices} yeni cihaz oluşturuluyor...")
+        for i in range(args.devices):
+            postgres_client.create_device()
 
     telemetry_fields = postgres_client.get_telemetry_fields()
     telemetry_generator = TelemetryGenerator(telemetry_fields)
@@ -118,3 +131,5 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+

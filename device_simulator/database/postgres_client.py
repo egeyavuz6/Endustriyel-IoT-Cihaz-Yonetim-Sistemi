@@ -1,4 +1,6 @@
 import psycopg2
+import uuid
+import random
 from psycopg2.extras import RealDictCursor
 from utils.logger import setup_logger
 
@@ -67,5 +69,40 @@ class PostgresClient:
                     for row in rows
                 ]
                 return fields
+        finally:
+            conn.close()
+
+
+    def create_device(self, device_type="SENSOR", status="ACTIVE"):
+        serial_number = f"SN{uuid.uuid4().hex[:8].upper()}"
+
+        locations = ["Fabrika A - Hat 1", "Fabrika A - Hat 2", "Fabrika B - Hat 1",
+                    "Fabrika B - Hat 2", "Fabrika C - Hat 1"]
+        location = random.choice(locations)
+
+        conn = self.get_connection()
+        try:
+            with conn.cursor(cursor_factory=RealDictCursor) as cursor:
+                cursor.execute(
+                    "INSERT INTO devices (name, serial_number, type, location, status, created_at) "
+                    "VALUES (%s, %s, %s, %s, %s, NOW()) "
+                    "RETURNING id",
+                    ("TEMP", serial_number, device_type, location, status)
+                )
+                new_id = cursor.fetchone()["id"]
+
+                final_name = f"Sensor-{new_id}"
+                cursor.execute(
+                    "UPDATE devices SET name = %s WHERE id = %s",
+                    (final_name, new_id)
+                )
+
+                conn.commit()
+                logger.info(f"Yeni cihaz oluşturuldu: id={new_id}, name={final_name}, serial={serial_number}, location={location}")
+                return new_id
+        except Exception as e:
+            conn.rollback()
+            logger.error(f"Cihaz oluşturulamadı: {e}")
+            return None
         finally:
             conn.close()

@@ -7,8 +7,8 @@ influxdb:
 simulation:
   interval_seconds: 3
   batch_write_size: 10
-  duration_seconds: 300
-  device_refresh_interval: 30
+  duration_seconds: 60
+  device_refresh_interval: 15
 
 postgres:
   host: "localhost"
