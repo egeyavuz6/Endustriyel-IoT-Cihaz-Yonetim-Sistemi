@@ -72,7 +72,22 @@ class PostgresClient:
         finally:
             conn.close()
 
-
+    def update_device_status(self, device_id, new_status):
+        conn = self.get_connection()
+        try:
+            with conn.cursor() as cursor:
+                cursor.execute(
+                    "UPDATE devices SET status = %s WHERE id = %s",
+                    (new_status, device_id)
+                )
+                conn.commit()
+                logger.info(f"Cihaz {device_id} durumu güncellendi: {new_status}")
+        except Exception as e:
+            conn.rollback()
+            logger.error(f"Cihaz durumu güncellenemedi: {e}")
+        finally:
+            conn.close()
+            
     def create_device(self, device_type="SENSOR", status="ACTIVE"):
         serial_number = f"SN{uuid.uuid4().hex[:8].upper()}"
 
