@@ -15,11 +15,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Component
-public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint { //Authentication entry point, Spring Security'nin kimlik başarsız için belirleyici arayüz.
+public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint {
 
     @Override
     public void commence(HttpServletRequest request, HttpServletResponse response,
-                         AuthenticationException authException) throws IOException, ServletException { //Bu metodun içinde kendi istediğimiz JSON formatı var.
+                         AuthenticationException authException) throws IOException, ServletException {
 
         response.setContentType("application/json");
         response.setStatus(HttpStatus.UNAUTHORIZED.value());
