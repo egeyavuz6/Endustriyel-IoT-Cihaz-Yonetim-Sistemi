@@ -1,6 +1,7 @@
 package com.argela.iot_device_management.controller;
 
 import com.argela.iot_device_management.dto.CreateCommandTypeRequest;
+import com.argela.iot_device_management.dto.UpdateCommandTypeRequest;
 import com.argela.iot_device_management.entity.DeviceCommand;
 import com.argela.iot_device_management.service.DeviceCommandService;
 import org.springframework.http.HttpStatus;
@@ -35,5 +36,14 @@ public class DeviceCommandController {
     public ResponseEntity<DeviceCommand> createCommandType(@RequestBody CreateCommandTypeRequest request) {
         DeviceCommand created = deviceCommandService.createCommandType(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @PutMapping("/{id}")
+    public ResponseEntity<DeviceCommand> updateCommandType(
+            @PathVariable Long id,
+            @RequestBody UpdateCommandTypeRequest request) {
+        DeviceCommand updated = deviceCommandService.updateCommandType(id, request);
+        return ResponseEntity.ok(updated);
     }
 }

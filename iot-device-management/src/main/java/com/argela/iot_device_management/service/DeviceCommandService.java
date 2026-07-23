@@ -1,5 +1,6 @@
 package com.argela.iot_device_management.service;
 
+import com.argela.iot_device_management.dto.UpdateCommandTypeRequest;
 import com.argela.iot_device_management.entity.DeviceCommand;
 import com.argela.iot_device_management.exception.ResourceNotFoundException;
 import com.argela.iot_device_management.repository.DeviceCommandRepository;
@@ -43,6 +44,27 @@ public class DeviceCommandService {
         command.setMinValue(request.getMinValue());
         command.setMaxValue(request.getMaxValue());
         command.setCreatedAt(LocalDateTime.now());
+
+        return deviceCommandRepository.save(command);
+    }
+    public DeviceCommand updateCommandType(Long id, UpdateCommandTypeRequest request) {
+        DeviceCommand command = getCommandById(id);
+
+        if (request.getMinValue() != null) {
+            command.setMinValue(request.getMinValue());
+        }
+        if (request.getMaxValue() != null) {
+            command.setMaxValue(request.getMaxValue());
+        }
+        if (request.getThresholdValue() != null) {
+            command.setThresholdValue(request.getThresholdValue());
+        }
+        if (request.getAlarmState() != null) {
+            if (!request.getAlarmState().equals("ACTIVE") && !request.getAlarmState().equals("INACTIVE")) {
+                throw new IllegalArgumentException("Gecersiz alarm state: " + request.getAlarmState());
+            }
+            command.setAlarmState(request.getAlarmState());
+        }
 
         return deviceCommandRepository.save(command);
     }
