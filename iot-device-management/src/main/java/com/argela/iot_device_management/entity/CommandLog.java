@@ -9,6 +9,7 @@ import java.time.LocalDateTime;
 @Table(name = "command_logs")
 @Data
 public class CommandLog {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -21,16 +22,16 @@ public class CommandLog {
     @JoinColumn(name = "command_id", nullable = false)
     private DeviceCommand command;
 
-    @Column(name = "executed_by")
-    private String executedBy;
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private User user;
 
-    @Column(name = "status")
-    private  String status;
+    @Column(nullable = false)
+    private String status;
 
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 
     @Column(name = "executed_at")
     private LocalDateTime executedAt;
-
 }

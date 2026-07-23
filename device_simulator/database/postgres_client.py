@@ -36,25 +36,27 @@ class PostgresClient:
         try:
             with conn.cursor(cursor_factory=RealDictCursor) as cursor:
                 cursor.execute(
-                    "SELECT id, command_type, command_value FROM device_commands "
-                    "WHERE device_id = %s AND status = 'PENDING'",
+                    "SELECT cl.id, dc.command_type "
+                    "FROM command_logs cl "
+                    "JOIN device_commands dc ON cl.command_id = dc.id "
+                    "WHERE cl.device_id = %s AND cl.status = 'PENDING'",
                     (device_id,)
                 )
                 return cursor.fetchall()
         finally:
             conn.close()
 
-    def mark_command_executed(self, command_id):
+    def mark_command_executed(self, log_id):
         conn = self.get_connection()
         try:
             with conn.cursor() as cursor:
                 cursor.execute(
-                    "UPDATE device_commands SET status = 'EXECUTED', executed_at = NOW() "
+                    "UPDATE command_logs SET status = 'EXECUTED', executed_at = NOW() "
                     "WHERE id = %s",
-                    (command_id,)
+                    (log_id,)
                 )
                 conn.commit()
-                logger.info(f"Komut {command_id} EXECUTED olarak işaretlendi.")
+                logger.info(f"Komut logu {log_id} EXECUTED olarak isaretlendi.")
         finally:
             conn.close()
 
@@ -62,10 +64,12 @@ class PostgresClient:
         conn = self.get_connection()
         try:
             with conn.cursor(cursor_factory=RealDictCursor) as cursor:
-                cursor.execute("SELECT name, min_value, max_value FROM telemetry_fields")
+                cursor.execute("SELECT command_type, min_value, max_value FROM device_commands "
+                                "WHERE operation_type = 'READ'"
+                )
                 rows = cursor.fetchall()
                 fields = [
-                    {"name": row["name"], "min": row["min_value"], "max": row["max_value"]}
+                    {"name": row["command_type"].lower(), "min": row["min_value"], "max": row["max_value"]}
                     for row in rows
                 ]
                 return fields

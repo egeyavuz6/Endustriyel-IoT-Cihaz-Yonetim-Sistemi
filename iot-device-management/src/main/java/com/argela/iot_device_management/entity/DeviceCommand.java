@@ -22,5 +22,10 @@ public class DeviceCommand {
     @Column(name = "operation_type")
     private String operationType;
 
+    @Column(name = "min_value")
+    private Double minValue;
+
+    @Column(name = "max_value")
+    private Double maxValue;
 
 }
