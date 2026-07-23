@@ -15,20 +15,17 @@ class CommandHandler:
 
     def execute_command(self, device_id, command):
         command_type = command.get("command_type")
-        command_id = command.get("id")
+        log_id = command.get("id")
 
-        logger.info(f"Komut alındı (device_id={device_id}): {command_type}")
+        logger.info(f"Komut alindi (device_id={device_id}): {command_type}")
 
         if command_type == "START":
             self.postgres_client.update_device_status(device_id, "ACTIVE")
-            logger.info(f"Cihaz {device_id} başlatıldı, durum: ACTIVE")
+            logger.info(f"Cihaz {device_id} baslatildi, durum: ACTIVE")
         elif command_type == "STOP":
             self.postgres_client.update_device_status(device_id, "PASSIVE")
             logger.info(f"Cihaz {device_id} durduruldu, durum: PASSIVE")
-        elif command_type == "RESET":
-            self.postgres_client.update_device_status(device_id, "PASSIVE")
-            logger.info(f"Cihaz {device_id} sıfırlanıyor...")
         else:
             logger.info(f"Bilinmeyen komut tipi: {command_type}")
 
-        self.postgres_client.mark_command_executed(command_id)
+        self.postgres_client.mark_command_executed(log_id)

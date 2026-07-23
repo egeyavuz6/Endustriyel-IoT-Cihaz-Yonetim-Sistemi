@@ -1,7 +1,9 @@
 package com.argela.iot_device_management.controller;
 
+import com.argela.iot_device_management.entity.CommandLog;
 import com.argela.iot_device_management.entity.Device;
 import com.argela.iot_device_management.entity.DeviceCommand;
+import com.argela.iot_device_management.service.CommandLogService;
 import com.argela.iot_device_management.service.DeviceService;
 import com.argela.iot_device_management.service.DeviceCommandService;
 import org.springframework.http.HttpStatus;
@@ -17,10 +19,12 @@ public class DeviceController {
 
     private final DeviceService deviceService;
     private final DeviceCommandService deviceCommandService;
+    private final CommandLogService commandLogService;
 
-    public DeviceController(DeviceService deviceService, DeviceCommandService deviceCommandService) {
+    public DeviceController(DeviceService deviceService, DeviceCommandService deviceCommandService, CommandLogService commandLogService) {
         this.deviceService = deviceService;
         this.deviceCommandService = deviceCommandService;
+        this.commandLogService = commandLogService;
     }
 
     @GetMapping
@@ -34,8 +38,8 @@ public class DeviceController {
     }
 
     @GetMapping("/{id}/commands")
-    public List<DeviceCommand> getDeviceCommands(@PathVariable Long id) {
-        return deviceCommandService.getCommandsByDeviceId(id);
+    public List<CommandLog> getDeviceCommands(@PathVariable Long id) {
+        return commandLogService.getCommandLogsByDeviceId(id);
     }
 
     @PreAuthorize("hasRole('ADMIN')")

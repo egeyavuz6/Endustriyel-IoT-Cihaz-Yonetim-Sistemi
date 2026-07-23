@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <title>Cihazlar</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <nav>
+        <h2>IoT Cihaz Yönetim Sistemi</h2>
+        <a href="dashboard.html">Ana Sayfa</a>
+    </nav>
+
+    <main>
+    <h1>Cihaz Listesi</h1>
+
+    <form id="createDeviceForm" class="device-form">
+        <h3>Yeni Cihaz Ekle</h3>
+        <input type="text" id="deviceName" placeholder="Cihaz Adı" required>
+        <input type="text" id="serialNumber" placeholder="Seri Numarası" required>
+        <select id="deviceType" required>
+            <option value="SENSOR">Sensor</option>
+            <option value="ACTUATOR">Actuator</option>
+            <option value="PLC">PLC</option>
+        </select>
+        <input type="text" id="location" placeholder="Lokasyon" required>
+        <button type="submit">Cihaz Ekle</button>
+    </form>
+    <p id="formMessage"></p>
+
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>İsim</th>
+                <th>Seri No</th>
+                <th>Tip</th>
+                <th>Lokasyon</th>
+                <th>Durum</th>
+                <th>İşlem</th>
+            </tr>
+        </thead>
+        <tbody id="devicesTableBody">
+        </tbody>
+    </table>
+</main>
+
+    <script src="js/api.js"></script>
+    <script src="js/devices.js"></script>
+</body>
+</html>
