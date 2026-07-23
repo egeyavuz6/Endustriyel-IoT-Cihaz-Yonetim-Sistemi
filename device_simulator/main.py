@@ -1,6 +1,7 @@
 import time
 import threading
 import argparse
+from database.postgres_client import PostgresClient
 from utils.config_loader import load_config
 from utils.logger import setup_logger
 from database.postgres_client import PostgresClient
@@ -39,8 +40,7 @@ def main():
             postgres_client.create_device()
 
     telemetry_fields = postgres_client.get_telemetry_fields()
-    telemetry_generator = TelemetryGenerator(telemetry_fields)
-
+    telemetry_generator = TelemetryGenerator(telemetry_fields, postgres_client)
     command_handler = CommandHandler(postgres_client)
 
     influx_client = InfluxDBClient(

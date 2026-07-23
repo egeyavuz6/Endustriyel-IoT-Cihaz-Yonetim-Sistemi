@@ -64,14 +64,23 @@ class PostgresClient:
         conn = self.get_connection()
         try:
             with conn.cursor(cursor_factory=RealDictCursor) as cursor:
-                cursor.execute("SELECT command_type, min_value, max_value FROM device_commands "
-                                "WHERE operation_type = 'READ'"
+                cursor.execute(
+                    "SELECT id, command_type, min_value, max_value, data_type, threshold_value "
+                    "FROM device_commands WHERE operation_type = 'READ'"
                 )
                 rows = cursor.fetchall()
                 fields = [
-                    {"name": row["command_type"].lower(), "min": row["min_value"], "max": row["max_value"]}
+                    {
+                        "id": row["id"],
+                        "name": row["command_type"].lower(),
+                        "min": row["min_value"],
+                        "max": row["max_value"],
+                        "data_type": row["data_type"],
+                        "threshold": row["threshold_value"]
+                    }
                     for row in rows
                 ]
+                logger.info(f"PostgreSQL'den {len(fields)} telemetry field bulundu: {[f['name'] for f in fields]}")
                 return fields
         finally:
             conn.close()
@@ -89,6 +98,18 @@ class PostgresClient:
         except Exception as e:
             conn.rollback()
             logger.error(f"Cihaz durumu güncellenemedi: {e}")
+        finally:
+            conn.close()
+
+    def update_alarm_state(self, command_id, alarm_state):
+        conn = self.get_connection()
+        try:
+            with conn.cursor() as cursor:
+                cursor.execute(
+                    "UPDATE device_commands SET alarm_state = %s WHERE id = %s",
+                    (alarm_state, command_id)
+                )
+                conn.commit()
         finally:
             conn.close()
             
