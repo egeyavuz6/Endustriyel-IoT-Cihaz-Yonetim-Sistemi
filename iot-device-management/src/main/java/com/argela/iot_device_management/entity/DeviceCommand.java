@@ -13,7 +13,7 @@ public class DeviceCommand {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "command_type", nullable = false)
+    @Column(name = "command_type", nullable = false, unique = true)
     private String commandType;
 
     @Column(name = "created_at")
