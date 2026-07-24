@@ -9,4 +9,5 @@ import java.util.List;
 @Repository
 public interface CommandLogRepository extends JpaRepository<CommandLog, Long> {
     List<CommandLog> findByDeviceId(Long deviceId);
+    List<CommandLog> findTop10ByOrderByCreatedAtDesc();
 }

@@ -2,36 +2,55 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <title>IoT Yönetim Sistemi - Dashboard</title>
+    <title>IoT Yonetim Sistemi - Dashboard</title>
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
     <nav>
-        <h2>IoT Cihaz Yönetim Sistemi</h2>
-        <button id="logoutButton">Çıkış Yap</button>
+        <h2>IoT Cihaz Yonetim Sistemi</h2>
+        <div>
+            <a href="devices.html">Cihazlar</a>
+            <button id="logoutButton">Cikis Yap</button>
+        </div>
     </nav>
 
     <main>
-        <h1>Hoş Geldin!</h1>
-        <div class="menu-cards">
-            <a href="devices.html" class="card">
-                <h3>Cihazlar</h3>
-                <p>Tüm cihazları görüntüle ve yönet</p>
-            </a>
+        <h1>Sistem Durumu</h1>
+
+        <!-- System Health -->
+        <div class="health-cards">
+            <div class="health-card">
+                <span class="health-label">Toplam Cihaz</span>
+                <span class="health-value" id="totalDevices">-</span>
+            </div>
+            <div class="health-card success">
+                <span class="health-label">Aktif</span>
+                <span class="health-value" id="activeDevices">-</span>
+            </div>
+            <div class="health-card muted">
+                <span class="health-label">Pasif</span>
+                <span class="health-value" id="passiveDevices">-</span>
+            </div>
+            <div class="health-card danger">
+                <span class="health-label">Aktif Alarm</span>
+                <span class="health-value" id="activeAlarmsCount">-</span>
+            </div>
         </div>
+
+        <!-- Critical Alert Center -->
+        <h2>Kritik Alarmlar</h2>
+        <div id="alarmsList" class="alarm-list"></div>
+
+        <!-- Device Status Overview -->
+        <h2>Cihaz Durumu</h2>
+        <div id="deviceStatusList" class="device-status-list"></div>
+
+        <!-- Recent Activity -->
+        <h2>Son Aktiviteler</h2>
+        <div id="recentActivityList" class="activity-list"></div>
     </main>
 
-    <script src="/frontend/js/auth.js"></script>
-    <script>
-        // Sayfa yüklendiğinde token kontrolü
-        if (!localStorage.getItem("access_token")) {
-            window.location.href = "index.html";
-        }
-
-        document.getElementById("logoutButton").addEventListener("click", function () {
-            localStorage.removeItem("access_token");
-            window.location.href = "index.html";
-        });
-    </script>
+    <script src="js/api.js"></script>
+    <script src="js/dashboard.js"></script>
 </body>
 </html>

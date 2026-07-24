@@ -8,4 +8,5 @@ import java.util.List;
 
 @Repository
 public interface DeviceCommandRepository extends JpaRepository<DeviceCommand, Long> {
+    List<DeviceCommand> findByAlarmState(String alarmState);
 }

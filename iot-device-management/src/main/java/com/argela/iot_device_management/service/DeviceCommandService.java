@@ -80,7 +80,7 @@ public class DeviceCommandService {
     @Transactional
     public void assignCommandsToDeviceType(String deviceType, List<Long> commandIds) {
         for (Long commandId : commandIds) {
-            getCommandById(commandId); // her birinin var olduğunu doğrula
+            getCommandById(commandId);
 
             entityManager.createNativeQuery(
                             "INSERT INTO device_type_commands (device_type, command_id) VALUES (?, ?) " +
@@ -91,4 +91,10 @@ public class DeviceCommandService {
                     .executeUpdate();
         }
     }
+    public List<DeviceCommand> getActiveAlarms() {
+        return deviceCommandRepository.findAll().stream()
+                .filter(c -> "ACTIVE".equals(c.getAlarmState()))
+                .toList();
+    }
+
 }

@@ -31,7 +31,7 @@ class PostgresClient:
                 return devices
         finally:
             conn.close()
-
+    
     def get_device_status(self, device_id):
         conn = self.get_connection()
         try:

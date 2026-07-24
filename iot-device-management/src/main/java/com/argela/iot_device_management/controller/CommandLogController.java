@@ -46,4 +46,9 @@ public class CommandLogController {
     public ResponseEntity<CommandLog> markExecuted(@PathVariable Long logId) {
         return ResponseEntity.ok(commandLogService.markAsExecuted(logId));
     }
+
+    @GetMapping("/recent")
+    public List<CommandLog> getRecentLogs() {
+        return commandLogService.getRecentLogs();
+    }
 }

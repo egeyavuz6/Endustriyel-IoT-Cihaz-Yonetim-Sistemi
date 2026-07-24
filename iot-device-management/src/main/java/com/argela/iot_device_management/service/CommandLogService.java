@@ -82,7 +82,9 @@ public class CommandLogService {
             return "ROLE_VIEWER";
         }
     }
-
+    public List<CommandLog> getRecentLogs() {
+        return commandLogRepository.findTop10ByOrderByCreatedAtDesc();
+    }
 
     public List<CommandLog> getCommandLogsByDeviceId(Long deviceId) {
         return commandLogRepository.findByDeviceId(deviceId);

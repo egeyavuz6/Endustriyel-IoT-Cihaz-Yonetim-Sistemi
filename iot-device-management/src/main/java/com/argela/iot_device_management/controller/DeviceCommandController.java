@@ -54,4 +54,8 @@ public class DeviceCommandController {
         deviceCommandService.assignCommandsToDeviceType(request.getDeviceType(), request.getCommandIds());
         return ResponseEntity.ok(request.getCommandIds().size() + " komut, " + request.getDeviceType() + " tipine atandi.");
     }
+    @GetMapping("/alarms")
+    public List<DeviceCommand> getActiveAlarms() {
+        return deviceCommandService.getActiveAlarms();
+    }
 }
