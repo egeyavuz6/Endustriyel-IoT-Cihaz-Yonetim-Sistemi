@@ -32,6 +32,17 @@ class PostgresClient:
         finally:
             conn.close()
 
+    def get_device_status(self, device_id):
+        conn = self.get_connection()
+        try:
+            with conn.cursor(cursor_factory=RealDictCursor) as cursor:
+                cursor.execute("SELECT status FROM devices WHERE id = %s", (device_id,))
+                row = cursor.fetchone()
+                return row["status"] if row else None
+        finally:
+            conn.close()
+
+
     def get_pending_commands(self, device_id):
         conn = self.get_connection()
         try:
