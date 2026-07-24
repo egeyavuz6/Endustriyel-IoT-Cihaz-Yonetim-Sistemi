@@ -90,7 +90,8 @@ class PostgresClient:
         try:
             with conn.cursor(cursor_factory=RealDictCursor) as cursor:
                 cursor.execute(
-                    "SELECT dc.id, dc.command_type, dc.min_value, dc.max_value, dc.data_type, dc.threshold_value "
+                    "SELECT dc.id, dc.command_type, dc.min_value, dc.max_value, dc.data_type, "
+                    "dc.threshold_value, dc.alarm_state "
                     "FROM device_commands dc "
                     "JOIN device_type_commands dtc ON dc.id = dtc.command_id "
                     "WHERE dtc.device_type = %s AND dc.operation_type = 'READ'",
@@ -104,7 +105,8 @@ class PostgresClient:
                         "min": row["min_value"],
                         "max": row["max_value"],
                         "data_type": row["data_type"],
-                        "threshold": row["threshold_value"]
+                        "threshold": row["threshold_value"],
+                        "alarm_state": row["alarm_state"]
                     }
                     for row in rows
                 ]
