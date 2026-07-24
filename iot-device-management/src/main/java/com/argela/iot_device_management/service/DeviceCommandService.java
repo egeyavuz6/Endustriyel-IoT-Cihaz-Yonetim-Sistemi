@@ -7,6 +7,10 @@ import com.argela.iot_device_management.repository.DeviceCommandRepository;
 import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import com.argela.iot_device_management.dto.CreateCommandTypeRequest;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import org.springframework.transaction.annotation.Transactional;
+
 
 import java.util.List;
 
@@ -14,6 +18,9 @@ import java.util.List;
 public class DeviceCommandService {
 
     private final DeviceCommandRepository deviceCommandRepository;
+
+    @PersistenceContext
+    private EntityManager entityManager;
 
     public DeviceCommandService(DeviceCommandRepository deviceCommandRepository) {
         this.deviceCommandRepository = deviceCommandRepository;
@@ -66,6 +73,22 @@ public class DeviceCommandService {
             command.setAlarmState(request.getAlarmState());
         }
 
+
         return deviceCommandRepository.save(command);
+    }
+
+    @Transactional
+    public void assignCommandsToDeviceType(String deviceType, List<Long> commandIds) {
+        for (Long commandId : commandIds) {
+            getCommandById(commandId); // her birinin var olduğunu doğrula
+
+            entityManager.createNativeQuery(
+                            "INSERT INTO device_type_commands (device_type, command_id) VALUES (?, ?) " +
+                                    "ON CONFLICT DO NOTHING"
+                    )
+                    .setParameter(1, deviceType)
+                    .setParameter(2, commandId)
+                    .executeUpdate();
+        }
     }
 }

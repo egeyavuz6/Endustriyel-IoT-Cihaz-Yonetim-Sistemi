@@ -84,6 +84,12 @@ def main():
             for device_id in current_devices.keys():
                 command_handler.check_and_execute_commands(device_id)
 
+            # YENİ: Aktif cihazların field listesini yenile
+            for device_id, info in current_devices.items():
+                if device_id in device_generators:
+                    fresh_fields = postgres_client.get_telemetry_fields(info["type"])
+                    device_generators[device_id].fields_config = fresh_fields
+
             for device_id, info in current_devices.items():
                 if info["status"] == "ACTIVE" and device_id not in existing_ids:
                     start_device_thread(device_id, info["type"])
@@ -107,8 +113,7 @@ def main():
 
             last_refresh = time.time()
 
-        time.sleep(1)
-    logger.info("Simulasyon tamamlandi. Aktif threadler durduruluyor...")
+    time.sleep(1)
 
 
     for device_id, (t, stop_event) in device_threads.items():
