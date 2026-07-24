@@ -24,7 +24,8 @@ class CommandHandler:
             logger.info(f"Cihaz {device_id} baslatildi, durum: ACTIVE")
         elif command_type == "POWER_OFF":
             self.postgres_client.update_device_status(device_id, "PASSIVE")
-            logger.info(f"Cihaz {device_id} durduruldu, durum: PASSIVE")
+            self.postgres_client.update_operational_state(device_id, "STOPPED")
+            logger.info(f"Cihaz {device_id} durduruldu, durum: PASSIVE, operational_state: STOPPED")
         elif command_type == "START":
             self.postgres_client.update_operational_state(device_id, "RUNNING")
             logger.info(f"Cihaz {device_id} fonksiyonu baslatildi (RUNNING)")

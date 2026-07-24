@@ -12,6 +12,12 @@ class TelemetryGenerator:
         self.postgres_client = postgres_client
 
     def generate(self, device_id):
+        operational_state = self.postgres_client.get_operational_state(device_id)
+
+        if operational_state == "STOPPED":
+            logger.info(f"Cihaz {device_id} STOPPED durumunda, veri uretilmiyor.")
+            return None
+
         point = Point("device_telemetry").tag("device_id", str(device_id))
 
         for field in self.fields_config:
@@ -26,9 +32,12 @@ class TelemetryGenerator:
         data_type = field.get("data_type", "FLOAT")
 
         if field["name"] == "temperature" and device_id is not None:
-            target = self.postgres_client.get_latest_command_value(device_id, "SET_TEMPERATURE")
-            if target is not None:
-                return round(target + random.uniform(-0.5, 0.5), 2)
+            operational_state = self.postgres_client.get_operational_state(device_id)
+
+            if operational_state == "RUNNING":
+                target = self.postgres_client.get_latest_command_value(device_id, "SET_TEMPERATURE")
+                if target is not None:
+                    return round(target + random.uniform(-0.5, 0.5), 2)
 
         if data_type == "INTEGER":
             return random.randint(int(field["min"]), int(field["max"]))

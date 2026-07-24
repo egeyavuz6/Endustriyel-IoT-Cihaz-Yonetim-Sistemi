@@ -24,10 +24,11 @@ class PostgresClient:
         conn = self.get_connection()
         try:
             with conn.cursor(cursor_factory=RealDictCursor) as cursor:
-                cursor.execute("SELECT id, status FROM devices")
+                cursor.execute("SELECT id, status, type FROM devices")
                 rows = cursor.fetchall()
-                device_statuses = {row['id']: row['status'] for row in rows}
-                return device_statuses
+                devices = {row['id']: {"status": row['status'], "type": row['type']} for row in rows}
+                logger.info(f"PostgreSQL'den {len(devices)} cihaz bulundu.")
+                return devices
         finally:
             conn.close()
 
@@ -60,13 +61,29 @@ class PostgresClient:
         finally:
             conn.close()
 
-    def get_telemetry_fields(self):
+
+    def get_operational_state(self, device_id):
         conn = self.get_connection()
         try:
             with conn.cursor(cursor_factory=RealDictCursor) as cursor:
                 cursor.execute(
-                    "SELECT id, command_type, min_value, max_value, data_type, threshold_value "
-                    "FROM device_commands WHERE operation_type = 'READ'"
+                    "SELECT operational_state FROM devices WHERE id = %s",
+                    (device_id,)
+                )
+                row = cursor.fetchone()
+                return row["operational_state"] if row else None
+        finally:
+            conn.close()
+    def get_telemetry_fields(self, device_type):
+        conn = self.get_connection()
+        try:
+            with conn.cursor(cursor_factory=RealDictCursor) as cursor:
+                cursor.execute(
+                    "SELECT dc.id, dc.command_type, dc.min_value, dc.max_value, dc.data_type, dc.threshold_value "
+                    "FROM device_commands dc "
+                    "JOIN device_type_commands dtc ON dc.id = dtc.command_id "
+                    "WHERE dtc.device_type = %s AND dc.operation_type = 'READ'",
+                    (device_type,)
                 )
                 rows = cursor.fetchall()
                 fields = [
@@ -80,7 +97,6 @@ class PostgresClient:
                     }
                     for row in rows
                 ]
-                logger.info(f"PostgreSQL'den {len(fields)} telemetry field bulundu: {[f['name'] for f in fields]}")
                 return fields
         finally:
             conn.close()
