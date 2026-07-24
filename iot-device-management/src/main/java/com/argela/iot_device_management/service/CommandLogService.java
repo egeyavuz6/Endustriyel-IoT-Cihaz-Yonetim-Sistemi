@@ -32,7 +32,7 @@ public class CommandLogService {
         this.userRepository = userRepository;
     }
 
-    public CommandLog createCommandLog(Long deviceId, Long commandId, Jwt jwt) {
+    public CommandLog createCommandLog(Long deviceId, Long commandId, String commandValue, Jwt jwt) {
         Device device = deviceService.getDeviceById(deviceId);
 
         DeviceCommand command = deviceCommandRepository.findById(commandId)
@@ -44,6 +44,7 @@ public class CommandLogService {
         log.setDevice(device);
         log.setCommand(command);
         log.setUser(user);
+        log.setCommandValue(commandValue);
         log.setStatus("PENDING");
         log.setCreatedAt(LocalDateTime.now());
 

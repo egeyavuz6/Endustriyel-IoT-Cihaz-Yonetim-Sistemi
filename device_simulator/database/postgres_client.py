@@ -146,3 +146,32 @@ class PostgresClient:
             return None
         finally:
             conn.close()
+
+    def get_latest_command_value(self, device_id, command_type):
+        conn = self.get_connection()
+        try:
+            with conn.cursor(cursor_factory=RealDictCursor) as cursor:
+                cursor.execute(
+                    "SELECT cl.command_value "
+                    "FROM command_logs cl "
+                    "JOIN device_commands dc ON cl.command_id = dc.id "
+                    "WHERE cl.device_id = %s AND dc.command_type = %s "
+                    "ORDER BY cl.created_at DESC LIMIT 1",
+                    (device_id, command_type)
+                )
+                row = cursor.fetchone()
+                return float(row["command_value"]) if row and row["command_value"] else None
+        finally:
+            conn.close()
+
+    def update_operational_state(self, device_id, state):
+        conn = self.get_connection()
+        try:
+            with conn.cursor() as cursor:
+                cursor.execute(
+                    "UPDATE devices SET operational_state = %s WHERE id = %s",
+                    (state, device_id)
+                )
+                conn.commit()
+        finally:
+            conn.close()

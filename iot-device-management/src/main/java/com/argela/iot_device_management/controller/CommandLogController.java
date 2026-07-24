@@ -30,6 +30,7 @@ public class CommandLogController {
         CommandLog log = commandLogService.createCommandLog(
                 request.getDeviceId(),
                 request.getCommandId(),
+                request.getCommandValue(),
                 jwt
         );
         return ResponseEntity.status(HttpStatus.CREATED).body(log);

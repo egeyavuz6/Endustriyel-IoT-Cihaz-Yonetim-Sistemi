@@ -1,3 +1,4 @@
+from dataclasses import field
 import random
 from influxdb_client import Point
 from utils.logger import setup_logger
@@ -14,16 +15,20 @@ class TelemetryGenerator:
         point = Point("device_telemetry").tag("device_id", str(device_id))
 
         for field in self.fields_config:
-            value = self._generate_value(field)
+            value = self._generate_value(field, device_id)
             point = point.field(field["name"], value)
-
             self._check_alarm(device_id, field, value)
 
         logger.info(f"Veri uretildi (device_id={device_id}): {point.to_line_protocol()}")
         return point
 
-    def _generate_value(self, field):
+    def _generate_value(self, field, device_id=None):
         data_type = field.get("data_type", "FLOAT")
+
+        if field["name"] == "temperature" and device_id is not None:
+            target = self.postgres_client.get_latest_command_value(device_id, "SET_TEMPERATURE")
+            if target is not None:
+                return round(target + random.uniform(-0.5, 0.5), 2)
 
         if data_type == "INTEGER":
             return random.randint(int(field["min"]), int(field["max"]))
