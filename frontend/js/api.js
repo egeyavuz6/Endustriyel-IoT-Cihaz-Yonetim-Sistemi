@@ -92,3 +92,12 @@ async function getRecentActivity() {
     if (!response.ok) throw new Error("Son aktiviteler yuklenemedi.");
     return await response.json();
 }
+
+async function getDevicesByLocation() {
+    const response = await fetch(`${API_BASE_URL}/api/devices/by-location`, {
+        method: "GET",
+        headers: getAuthHeaders()
+    });
+    if (!response.ok) throw new Error("Lokasyon verisi yuklenemedi.");
+    return await response.json();
+}

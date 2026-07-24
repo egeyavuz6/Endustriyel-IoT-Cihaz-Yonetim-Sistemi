@@ -12,6 +12,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/devices")
@@ -59,5 +60,10 @@ public class DeviceController {
     @DeleteMapping("/{id}")
     public void deleteDevice(@PathVariable Long id) {
         deviceService.deleteDevice(id);
+    }
+
+    @GetMapping("/by-location")
+    public Map<String, Map<String, Object>> getDevicesByLocation() {
+        return deviceService.getDevicesByLocation();
     }
 }
