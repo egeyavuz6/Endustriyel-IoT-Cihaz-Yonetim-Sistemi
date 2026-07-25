@@ -49,7 +49,7 @@ public class DeviceCommandController {
     }
 
     @PreAuthorize("hasRole('ADMIN')")
-    @PostMapping("/assign-to-type")
+    @PostMapping("/assign-to-device-type")
     public ResponseEntity<String> assignCommandsToDeviceType(@RequestBody AssignCommandToDeviceTypeRequest request) {
         deviceCommandService.assignCommandsToDeviceType(request.getDeviceType(), request.getCommandIds());
         return ResponseEntity.ok(request.getCommandIds().size() + " komut, " + request.getDeviceType() + " tipine atandi.");

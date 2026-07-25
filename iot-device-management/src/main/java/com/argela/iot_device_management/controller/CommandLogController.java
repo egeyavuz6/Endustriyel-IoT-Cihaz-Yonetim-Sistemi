@@ -24,8 +24,8 @@ public class CommandLogController {
     }
 
     @PreAuthorize("hasAnyRole('ADMIN', 'OPERATOR')")
-    @PostMapping
-    public ResponseEntity<CommandLog> createCommandLog(@RequestBody CreateCommandLogRequest request) {
+    @PostMapping("/send-command")
+    public ResponseEntity<CommandLog> sendCommand(@RequestBody CreateCommandLogRequest request) {
         Jwt jwt = (Jwt) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
         CommandLog log = commandLogService.createCommandLog(
@@ -54,7 +54,7 @@ public class CommandLogController {
     }
 
     @PreAuthorize("hasAnyRole('ADMIN', 'OPERATOR')")
-    @PostMapping("/bulk-by-location")
+    @PostMapping("/send-command-by-location")
     public ResponseEntity<String> sendBulkCommandByLocation(@RequestBody  BulkCommandRequest request) {
         int count = commandLogService.sendCommandToLocation(request.getLocation(), request.getCommandId());
         return ResponseEntity.ok(count + " cihaza komut gonderildi.");

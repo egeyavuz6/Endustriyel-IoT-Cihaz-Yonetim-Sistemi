@@ -62,8 +62,8 @@ public class DeviceController {
         deviceService.deleteDevice(id);
     }
 
-    @GetMapping("/by-location")
-    public Map<String, Map<String, Object>> getDevicesByLocation() {
+    @GetMapping("/location-summary")
+    public Map<String, Map<String, Object>> getLocationSummary() {
         return deviceService.getDevicesByLocation();
     }
 }
