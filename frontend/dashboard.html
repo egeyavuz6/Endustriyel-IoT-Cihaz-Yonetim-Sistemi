@@ -7,12 +7,14 @@
 </head>
 <body>
     <nav>
-        <h2>IoT Cihaz Yonetim Sistemi</h2>
-        <div>
-            <a href="devices.html">Cihazlar</a>
-            <button id="logoutButton">Cikis Yap</button>
-        </div>
-    </nav>
+    <h2>IoT Cihaz Yonetim Sistemi</h2>
+    <div class="nav-links">
+        <a href="dashboard.html">Dashboard</a>
+        <a href="locations.html">Lokasyonlar</a>
+        <a href="devices.html">Cihazlar</a>
+    </div>
+    <button id="logoutButton">Cikis Yap</button>
+</nav>
 
     <main>
         <h1>Sistem Durumu</h1>
@@ -40,13 +42,6 @@
         <!-- Critical Alert Center -->
         <h2>Kritik Alarmlar</h2>
         <div id="alarmsList" class="alarm-list"></div>
-
-        <h2>Lokasyon Bazli Ozet</h2>
-        <div id="locationOverview" class="location-list"></div>
-        
-        <!-- Device Status Overview -->
-        <h2>Cihaz Durumu</h2>
-        <div id="deviceStatusList" class="device-status-list"></div>
 
         <!-- Recent Activity -->
         <h2>Son Aktiviteler</h2>

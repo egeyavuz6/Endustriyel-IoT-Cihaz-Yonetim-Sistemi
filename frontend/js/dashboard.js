@@ -12,7 +12,6 @@ document.addEventListener("DOMContentLoaded", async function () {
     await loadSystemHealth();
     await loadActiveAlarms();
     await loadRecentActivity();
-    await loadLocationOverview(); 
 });
 
 async function loadSystemHealth() {
