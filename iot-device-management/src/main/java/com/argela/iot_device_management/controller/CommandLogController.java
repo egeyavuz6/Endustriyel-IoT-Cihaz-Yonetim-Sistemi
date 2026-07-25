@@ -1,5 +1,6 @@
 package com.argela.iot_device_management.controller;
 
+import com.argela.iot_device_management.dto.BulkCommandRequest;
 import com.argela.iot_device_management.dto.CreateCommandLogRequest;
 import com.argela.iot_device_management.entity.CommandLog;
 import com.argela.iot_device_management.service.CommandLogService;
@@ -50,5 +51,12 @@ public class CommandLogController {
     @GetMapping("/recent")
     public List<CommandLog> getRecentLogs() {
         return commandLogService.getRecentLogs();
+    }
+
+    @PreAuthorize("hasAnyRole('ADMIN', 'OPERATOR')")
+    @PostMapping("/bulk-by-location")
+    public ResponseEntity<String> sendBulkCommandByLocation(@RequestBody  BulkCommandRequest request) {
+        int count = commandLogService.sendCommandToLocation(request.getLocation(), request.getCommandId());
+        return ResponseEntity.ok(count + " cihaza komut gonderildi.");
     }
 }

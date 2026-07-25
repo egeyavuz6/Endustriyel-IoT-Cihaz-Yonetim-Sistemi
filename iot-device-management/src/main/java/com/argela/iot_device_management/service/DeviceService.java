@@ -73,4 +73,8 @@ public class DeviceService {
 
         return result;
     }
+
+    public List<Device> getDevicesByLocationName(String location) {
+        return deviceRepository.findByLocation(location);
+    }
 }
