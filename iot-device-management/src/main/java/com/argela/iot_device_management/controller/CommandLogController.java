@@ -1,5 +1,6 @@
 package com.argela.iot_device_management.controller;
 
+import com.argela.iot_device_management.dto.BulkCommandRequest;
 import com.argela.iot_device_management.dto.CreateCommandLogRequest;
 import com.argela.iot_device_management.entity.CommandLog;
 import com.argela.iot_device_management.service.CommandLogService;
@@ -23,13 +24,14 @@ public class CommandLogController {
     }
 
     @PreAuthorize("hasAnyRole('ADMIN', 'OPERATOR')")
-    @PostMapping
-    public ResponseEntity<CommandLog> createCommandLog(@RequestBody CreateCommandLogRequest request) {
+    @PostMapping("/send-command")
+    public ResponseEntity<CommandLog> sendCommand(@RequestBody CreateCommandLogRequest request) {
         Jwt jwt = (Jwt) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
         CommandLog log = commandLogService.createCommandLog(
                 request.getDeviceId(),
                 request.getCommandId(),
+                request.getCommandValue(),
                 jwt
         );
         return ResponseEntity.status(HttpStatus.CREATED).body(log);
@@ -44,5 +46,17 @@ public class CommandLogController {
     @PutMapping("/{logId}/execute")
     public ResponseEntity<CommandLog> markExecuted(@PathVariable Long logId) {
         return ResponseEntity.ok(commandLogService.markAsExecuted(logId));
+    }
+
+    @GetMapping("/recent")
+    public List<CommandLog> getRecentLogs() {
+        return commandLogService.getRecentLogs();
+    }
+
+    @PreAuthorize("hasAnyRole('ADMIN', 'OPERATOR')")
+    @PostMapping("/send-command-by-location")
+    public ResponseEntity<String> sendBulkCommandByLocation(@RequestBody  BulkCommandRequest request) {
+        int count = commandLogService.sendCommandToLocation(request.getLocation(), request.getCommandId());
+        return ResponseEntity.ok(count + " cihaza komut gonderildi.");
     }
 }

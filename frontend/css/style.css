@@ -153,3 +153,135 @@ tr:hover {
 .card:hover {
     transform: translateY(-2px);
 }
+
+/* System Health Cards */
+.health-cards {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.health-card {
+    background-color: var(--card-bg);
+    padding: 1.5rem;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    border-left: 4px solid var(--border-color);
+}
+
+.health-card.success {
+    border-left-color: var(--success-color);
+}
+
+.health-card.muted {
+    border-left-color: #94a3b8;
+}
+
+.health-card.danger {
+    border-left-color: var(--danger-color);
+}
+
+.health-label {
+    font-size: 0.85rem;
+    color: #64748b;
+    font-weight: 500;
+}
+
+.health-value {
+    font-size: 2rem;
+    font-weight: 700;
+}
+
+/* Alarm Cards */
+.alarm-list {
+    margin-bottom: 2rem;
+}
+
+.alarm-card {
+    background-color: #fef2f2;
+    border-left: 4px solid var(--danger-color);
+    padding: 1rem;
+    border-radius: 8px;
+    margin-bottom: 0.5rem;
+}
+
+.no-alarms {
+    color: var(--success-color);
+    font-weight: 500;
+}
+
+/* Device Status List */
+.device-status-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-bottom: 2rem;
+}
+
+.device-status-item {
+    display: block;
+    padding: 0.75rem 1rem;
+    background-color: var(--card-bg);
+    border-radius: 8px;
+    text-decoration: none;
+    color: var(--text-color);
+    box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+    transition: transform 0.15s;
+}
+
+.device-status-item:hover {
+    transform: translateX(4px);
+}
+
+/* Recent Activity */
+.activity-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.activity-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.75rem 1rem;
+    background-color: var(--card-bg);
+    border-radius: 8px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+    font-size: 0.9rem;
+}
+
+.activity-time {
+    color: #64748b;
+    font-size: 0.8rem;
+}
+
+.location-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.location-card {
+    background-color: var(--card-bg);
+    padding: 1rem;
+    border-radius: 8px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+}
+.nav-links {
+    display: flex;
+    gap: 1.5rem;
+}
+
+.nav-links a {
+    color: var(--text-color);
+    font-weight: 500;
+}
+
+.nav-links a:hover {
+    color: var(--primary-color);
+}

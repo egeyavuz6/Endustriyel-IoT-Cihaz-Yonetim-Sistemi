@@ -34,4 +34,7 @@ public class CommandLog {
 
     @Column(name = "executed_at")
     private LocalDateTime executedAt;
+
+    @Column(name = "command_value")
+    private String commandValue;
 }

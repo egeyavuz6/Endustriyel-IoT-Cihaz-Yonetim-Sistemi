@@ -7,9 +7,14 @@
 </head>
 <body>
     <nav>
-        <h2>IoT Cihaz Yönetim Sistemi</h2>
-        <a href="dashboard.html">Ana Sayfa</a>
-    </nav>
+    <h2>IoT Cihaz Yonetim Sistemi</h2>
+    <div class="nav-links">
+        <a href="dashboard.html">Dashboard</a>
+        <a href="locations.html">Lokasyonlar</a>
+        <a href="devices.html">Cihazlar</a>
+    </div>
+    <button id="logoutButton">Cikis Yap</button>
+</nav>
 
     <main>
     <h1>Cihaz Listesi</h1>
@@ -20,8 +25,8 @@
         <input type="text" id="serialNumber" placeholder="Seri Numarası" required>
         <select id="deviceType" required>
             <option value="SENSOR">Sensor</option>
-            <option value="ACTUATOR">Actuator</option>
-            <option value="PLC">PLC</option>
+            <option value="ENGINE">Engine</option>
+            <option value="AC">AC</option>
         </select>
         <input type="text" id="location" placeholder="Lokasyon" required>
         <button type="submit">Cihaz Ekle</button>

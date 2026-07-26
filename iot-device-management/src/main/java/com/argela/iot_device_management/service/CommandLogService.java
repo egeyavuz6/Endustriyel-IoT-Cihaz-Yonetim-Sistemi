@@ -8,6 +8,7 @@ import com.argela.iot_device_management.exception.ResourceNotFoundException;
 import com.argela.iot_device_management.repository.CommandLogRepository;
 import com.argela.iot_device_management.repository.DeviceCommandRepository;
 import com.argela.iot_device_management.repository.UserRepository;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Service;
@@ -32,7 +33,7 @@ public class CommandLogService {
         this.userRepository = userRepository;
     }
 
-    public CommandLog createCommandLog(Long deviceId, Long commandId, Jwt jwt) {
+    public CommandLog createCommandLog(Long deviceId, Long commandId, String commandValue, Jwt jwt) {
         Device device = deviceService.getDeviceById(deviceId);
 
         DeviceCommand command = deviceCommandRepository.findById(commandId)
@@ -44,6 +45,7 @@ public class CommandLogService {
         log.setDevice(device);
         log.setCommand(command);
         log.setUser(user);
+        log.setCommandValue(commandValue);
         log.setStatus("PENDING");
         log.setCreatedAt(LocalDateTime.now());
 
@@ -81,10 +83,34 @@ public class CommandLogService {
             return "ROLE_VIEWER";
         }
     }
-
+    public List<CommandLog> getRecentLogs() {
+        return commandLogRepository.findTop10ByOrderByCreatedAtDesc();
+    }
 
     public List<CommandLog> getCommandLogsByDeviceId(Long deviceId) {
         return commandLogRepository.findByDeviceId(deviceId);
+    }
+
+    public int sendCommandToLocation(String location, Long commandId) {
+        List<Device> devicesInLocation = deviceService.getDevicesByLocationName(location);
+
+        DeviceCommand command = deviceCommandRepository.findById(commandId)
+                .orElseThrow(() -> new ResourceNotFoundException("Command not found with id: " + commandId));
+
+        Jwt jwt = (Jwt) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        User user = findOrCreateUser(jwt);
+
+        for (Device device : devicesInLocation) {
+            CommandLog log = new CommandLog();
+            log.setDevice(device);
+            log.setCommand(command);
+            log.setUser(user);
+            log.setStatus("PENDING");
+            log.setCreatedAt(LocalDateTime.now());
+            commandLogRepository.save(log);
+        }
+
+        return devicesInLocation.size();
     }
 
     public CommandLog markAsExecuted(Long logId) {
