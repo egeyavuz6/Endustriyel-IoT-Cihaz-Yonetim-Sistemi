@@ -24,21 +24,39 @@ class PostgresClient:
         conn = self.get_connection()
         try:
             with conn.cursor(cursor_factory=RealDictCursor) as cursor:
-                cursor.execute("SELECT id, status, type FROM devices")
+                cursor.execute(
+                    "SELECT d.id, d.type, "
+                    "COALESCE(dc.min_value, 0) as power_state "
+                    "FROM devices d "
+                    "LEFT JOIN device_commands dc ON dc.device_id = d.id "
+                    "AND dc.command_type = 'POWER_ON' AND dc.operation_type = 'READ'"
+                )
                 rows = cursor.fetchall()
-                devices = {row['id']: {"status": row['status'], "type": row['type']} for row in rows}
+                devices = {
+                    row['id']: {
+                        "status": "ACTIVE" if row['power_state'] == 1 else "PASSIVE",
+                        "type": row['type']
+                    }
+                    for row in rows
+                }
                 logger.info(f"PostgreSQL'den {len(devices)} cihaz bulundu.")
                 return devices
         finally:
-            conn.close()
+            conn.close()    
     
     def get_device_status(self, device_id):
         conn = self.get_connection()
         try:
             with conn.cursor(cursor_factory=RealDictCursor) as cursor:
-                cursor.execute("SELECT status FROM devices WHERE id = %s", (device_id,))
+                cursor.execute(
+                    "SELECT min_value FROM device_commands "
+                    "WHERE device_id = %s AND command_type = 'POWER_ON' AND operation_type = 'READ'",
+                    (device_id,)
+                )
                 row = cursor.fetchone()
-                return row["status"] if row else None
+                if row and row["min_value"] == 1:
+                    return "ACTIVE"
+                return "PASSIVE"
         finally:
             conn.close()
 
@@ -78,24 +96,27 @@ class PostgresClient:
         try:
             with conn.cursor(cursor_factory=RealDictCursor) as cursor:
                 cursor.execute(
-                    "SELECT operational_state FROM devices WHERE id = %s",
+                    "SELECT min_value FROM device_commands "
+                    "WHERE device_id = %s AND command_type = 'START' AND operation_type = 'READ'",
                     (device_id,)
                 )
                 row = cursor.fetchone()
-                return row["operational_state"] if row else None
+                if row and row["min_value"] == 1:
+                    return "RUNNING"
+                return "STOPPED"
         finally:
             conn.close()
-    def get_telemetry_fields(self, device_type):
+
+    def get_telemetry_fields(self, device_id):
         conn = self.get_connection()
         try:
             with conn.cursor(cursor_factory=RealDictCursor) as cursor:
                 cursor.execute(
-                    "SELECT dc.id, dc.command_type, dc.min_value, dc.max_value, dc.data_type, "
-                    "dc.threshold_value, dc.alarm_state "
-                    "FROM device_commands dc "
-                    "JOIN device_type_commands dtc ON dc.id = dtc.command_id "
-                    "WHERE dtc.device_type = %s AND dc.operation_type = 'READ'",
-                    (device_type,)
+                    "SELECT id, command_type, min_value, max_value, data_type, "
+                    "threshold_value, alarm_state, alarm_enabled "
+                    "FROM device_commands "
+                    "WHERE device_id = %s AND operation_type = 'READ' AND is_active = TRUE",
+                    (device_id,)
                 )
                 rows = cursor.fetchall()
                 fields = [
@@ -106,7 +127,8 @@ class PostgresClient:
                         "max": row["max_value"],
                         "data_type": row["data_type"],
                         "threshold": row["threshold_value"],
-                        "alarm_state": row["alarm_state"]
+                        "alarm_state": row["alarm_state"],
+                        "alarm_enabled": row["alarm_enabled"]
                     }
                     for row in rows
                 ]
@@ -114,19 +136,17 @@ class PostgresClient:
         finally:
             conn.close()
 
-    def update_device_status(self, device_id, new_status):
+    def update_device_status(self, device_id, status):
+        value = 1 if status == "ACTIVE" else 0
         conn = self.get_connection()
         try:
             with conn.cursor() as cursor:
                 cursor.execute(
-                    "UPDATE devices SET status = %s WHERE id = %s",
-                    (new_status, device_id)
+                    "UPDATE device_commands SET min_value = %s, max_value = %s "
+                    "WHERE device_id = %s AND command_type = 'POWER_ON' AND operation_type = 'READ'",
+                    (value, value, device_id)
                 )
                 conn.commit()
-                logger.info(f"Cihaz {device_id} durumu güncellendi: {new_status}")
-        except Exception as e:
-            conn.rollback()
-            logger.error(f"Cihaz durumu güncellenemedi: {e}")
         finally:
             conn.close()
 
@@ -194,12 +214,29 @@ class PostgresClient:
             conn.close()
 
     def update_operational_state(self, device_id, state):
+        value = 1 if state == "RUNNING" else 0
         conn = self.get_connection()
         try:
             with conn.cursor() as cursor:
                 cursor.execute(
-                    "UPDATE devices SET operational_state = %s WHERE id = %s",
-                    (state, device_id)
+                    "UPDATE device_commands SET min_value = %s, max_value = %s "
+                    "WHERE device_id = %s AND command_type = 'START' AND operation_type = 'READ'",
+                    (value, value, device_id)
+                )
+                conn.commit()
+        finally:
+            conn.close()
+
+    def upsert_device_alarm(self, device_id, command_id, value, alarm_state):
+        conn = self.get_connection()
+        try:
+            with conn.cursor() as cursor:
+                cursor.execute(
+                    "INSERT INTO notifications (device_id, command_id, current_value, alarm_state, updated_at) "
+                    "VALUES (%s, %s, %s, %s, NOW()) "
+                    "ON CONFLICT (device_id, command_id) "
+                    "DO UPDATE SET current_value = %s, alarm_state = %s, updated_at = NOW()",
+                    (device_id, command_id, value, alarm_state, value, alarm_state)
                 )
                 conn.commit()
         finally:

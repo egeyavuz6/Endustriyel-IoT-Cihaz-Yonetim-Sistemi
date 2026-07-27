@@ -10,7 +10,6 @@ import com.argela.iot_device_management.repository.DeviceCommandRepository;
 import com.argela.iot_device_management.repository.UserRepository;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.jwt.Jwt;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -38,6 +37,10 @@ public class CommandLogService {
 
         DeviceCommand command = deviceCommandRepository.findById(commandId)
                 .orElseThrow(() -> new ResourceNotFoundException("Command not found with id: " + commandId));
+
+        if ("READ".equals(command.getOperationType())) {
+            throw new IllegalArgumentException("READ tipi komutlar API uzerinden gonderilemez, sadece WRITE komutlar gonderilebilir.");
+        }
 
         User user = findOrCreateUser(jwt);
 

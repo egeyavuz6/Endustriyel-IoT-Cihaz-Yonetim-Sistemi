@@ -50,8 +50,9 @@ def main():
     device_generators = {}
 
     def start_device_thread(device_id, device_type):
-        telemetry_fields = postgres_client.get_telemetry_fields(device_type)
+        telemetry_fields = postgres_client.get_telemetry_fields(device_id)  
         generator = TelemetryGenerator(telemetry_fields, postgres_client)
+    
         device_generators[device_id] = generator
 
         stop_event = threading.Event()
@@ -65,11 +66,17 @@ def main():
 
     logger.info(f"Simulasyon baslatildi. {duration} saniye boyunca calisacak.")
 
+    passive_count = 0
+    active_count = 0
+
     for device_id, info in devices.items():
         if info["status"] == "ACTIVE":
             start_device_thread(device_id, info["type"])
+            active_count += 1
         else:
-            logger.info(f"Cihaz {device_id} ACTIVE degil (durum: {info['status']}), thread baslatilmadi.")
+            passive_count += 1
+
+    logger.info(f"{active_count} cihaz baslatildi, {passive_count} cihaz PASSIVE oldugu icin baslatilmadi.")
 
     start_time = time.time()
     last_refresh = time.time()
@@ -87,7 +94,7 @@ def main():
             # YENİ: Aktif cihazların field listesini yenile
             for device_id, info in current_devices.items():
                 if device_id in device_generators:
-                    fresh_fields = postgres_client.get_telemetry_fields(info["type"])
+                    fresh_fields = postgres_client.get_telemetry_fields(device_id)  # device_id
                     device_generators[device_id].fields_config = fresh_fields
 
             for device_id, info in current_devices.items():

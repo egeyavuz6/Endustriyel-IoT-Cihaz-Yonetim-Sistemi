@@ -4,8 +4,10 @@ import lombok.Data;
 
 @Data
 public class CreateCommandTypeRequest {
+    private Long deviceId;
     private String commandType;
     private String operationType;
     private Double minValue;
     private Double maxValue;
+    private Boolean isActive;
 }

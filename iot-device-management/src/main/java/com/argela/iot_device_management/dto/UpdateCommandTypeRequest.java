@@ -7,5 +7,6 @@ public class UpdateCommandTypeRequest {
     private Double minValue;
     private Double maxValue;
     private Double thresholdValue;
-    private String alarmState;
+    private Boolean alarmEnabled;
+    private Boolean isActive;
 }

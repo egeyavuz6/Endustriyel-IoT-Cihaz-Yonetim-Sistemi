@@ -22,7 +22,7 @@ public class GlobalExceptionHandler {
         body.put("error", "Not Found");
         body.put("message", ex.getMessage());
 
-        return new ResponseEntity<>(body, HttpStatus.NOT_FOUND);
+        return new ResponseEntity<>(body, HttpStatus.NOT_FOUND);//404 hatası
     }
 
     @ExceptionHandler(Exception.class)
@@ -33,7 +33,7 @@ public class GlobalExceptionHandler {
         body.put("error", "Internal Server Error");
         body.put("message", ex.getMessage());
 
-        return new ResponseEntity<>(body, HttpStatus.INTERNAL_SERVER_ERROR);
+        return new ResponseEntity<>(body, HttpStatus.INTERNAL_SERVER_ERROR);//500 hatası
     }
 
     @ExceptionHandler(DataIntegrityViolationException.class)
@@ -44,7 +44,7 @@ public class GlobalExceptionHandler {
         body.put("error", "Conflict");
         body.put("message", "Bu kayit zaten mevcut. Ayni degere sahip bir kayit olusturulamaz.");
 
-        return new ResponseEntity<>(body, HttpStatus.CONFLICT);
+        return new ResponseEntity<>(body, HttpStatus.CONFLICT);//409 Hatası
     }
 
     @ExceptionHandler(AccessDeniedException.class)
@@ -54,6 +54,6 @@ public class GlobalExceptionHandler {
         body.put("status", HttpStatus.FORBIDDEN.value());
         body.put("error", "Forbidden");
         body.put("message", "Bu islemi gerceklestirmek icin yeterli yetkiniz yok.");
-        return new ResponseEntity<>(body, HttpStatus.FORBIDDEN);
+        return new ResponseEntity<>(body, HttpStatus.FORBIDDEN);//403 Hatası
     }
 }
