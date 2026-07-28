@@ -14,6 +14,10 @@ public class DeviceCommand {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @ManyToOne
+    @JoinColumn(name = "device_id")
+    private Device device;
+
     @Column(name = "command_type", nullable = false)
     private String commandType;
 
@@ -34,6 +38,12 @@ public class DeviceCommand {
 
     @Column(name = "alarm_state")
     private String alarmState;
+
+    @Column(name = "alarm_enabled")
+    private Boolean alarmEnabled;
+
+    @Column(name = "is_active")
+    private Boolean isActive;
 
     @Column(name = "created_at")
     private LocalDateTime createdAt;

@@ -1,5 +1,7 @@
 package com.argela.iot_device_management.service;
 
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import com.argela.iot_device_management.entity.Device;
 import com.argela.iot_device_management.repository.DeviceRepository;
 import org.springframework.stereotype.Service;
@@ -37,7 +39,6 @@ public class DeviceService {
         device.setSerialNumber(updatedDevice.getSerialNumber());
         device.setType(updatedDevice.getType());
         device.setLocation(updatedDevice.getLocation());
-        device.setStatus(updatedDevice.getStatus());
         return deviceRepository.save(device);
     }
     public void deleteDevice(Long id) {
@@ -48,6 +49,9 @@ public class DeviceService {
         return deviceRepository.findBySerialNumber(serialNumber)
                 .orElseThrow(() -> new ResourceNotFoundException("Device not found with serial number: " + serialNumber));
     }
+
+    @PersistenceContext
+    private EntityManager entityManager;
 
     public Map<String, Map<String, Object>> getDevicesByLocation() {
         List<Device> allDevices = deviceRepository.findAll();
@@ -61,7 +65,9 @@ public class DeviceService {
             String location = entry.getKey();
             List<Device> devices = entry.getValue();
 
-            long activeCount = devices.stream().filter(d -> "ACTIVE".equals(d.getStatus())).count();
+            long activeCount = devices.stream()
+                    .filter(d -> isDeviceActive(d.getId()))
+                    .count();
 
             Map<String, Object> summary = new HashMap<>();
             summary.put("totalDevices", devices.size());
@@ -72,6 +78,19 @@ public class DeviceService {
         }
 
         return result;
+    }
+
+    private boolean isDeviceActive(Long deviceId) {
+        Object result = entityManager.createNativeQuery(
+                        "SELECT min_value FROM device_commands " +
+                                "WHERE device_id = :deviceId AND command_type = 'POWER_ON' AND operation_type = 'READ'"
+                )
+                .setParameter("deviceId", deviceId)
+                .getResultStream()
+                .findFirst()
+                .orElse(null);
+
+        return result != null && ((Number) result).intValue() == 1;
     }
 
     public List<Device> getDevicesByLocationName(String location) {

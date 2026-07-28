@@ -5,5 +5,5 @@ import lombok.Data;
 @Data
 public class BulkCommandRequest {
     private String location;
-    private Long commandId;
+    private String commandType;
 }

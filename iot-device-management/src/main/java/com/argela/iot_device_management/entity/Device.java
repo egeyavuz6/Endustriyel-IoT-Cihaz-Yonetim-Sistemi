@@ -24,9 +24,6 @@ public class Device {
 
     private String location;
 
-    @Column(nullable = false)
-    private String status;
-
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 }

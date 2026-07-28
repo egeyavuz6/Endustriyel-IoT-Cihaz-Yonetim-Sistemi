@@ -1,6 +1,8 @@
 package com.argela.iot_device_management.service;
 
+import com.argela.iot_device_management.dto.AlarmSettingsRequest;
 import com.argela.iot_device_management.dto.UpdateCommandTypeRequest;
+import com.argela.iot_device_management.entity.Device;
 import com.argela.iot_device_management.entity.DeviceCommand;
 import com.argela.iot_device_management.exception.ResourceNotFoundException;
 import com.argela.iot_device_management.repository.DeviceCommandRepository;
@@ -18,12 +20,12 @@ import java.util.List;
 public class DeviceCommandService {
 
     private final DeviceCommandRepository deviceCommandRepository;
+    private final DeviceService deviceService;
 
-    @PersistenceContext
-    private EntityManager entityManager;
 
-    public DeviceCommandService(DeviceCommandRepository deviceCommandRepository) {
+    public DeviceCommandService(DeviceCommandRepository deviceCommandRepository, DeviceService deviceService) {
         this.deviceCommandRepository = deviceCommandRepository;
+        this.deviceService = deviceService;
     }
 
     public List<DeviceCommand> getAllCommands() {
@@ -36,20 +38,15 @@ public class DeviceCommandService {
     }
 
     public DeviceCommand createCommandType(CreateCommandTypeRequest request) {
-        boolean exists;
-        if (deviceCommandRepository.findAll().stream()
-                .anyMatch(c -> c.getCommandType().equalsIgnoreCase(request.getCommandType()))) exists = true;
-        else exists = false;
-
-        if (exists) {
-            throw new IllegalArgumentException("Bu komut tipi zaten mevcut: " + request.getCommandType());
-        }
+        Device device = deviceService.getDeviceById(request.getDeviceId());
 
         DeviceCommand command = new DeviceCommand();
+        command.setDevice(device);
         command.setCommandType(request.getCommandType());
         command.setOperationType(request.getOperationType());
         command.setMinValue(request.getMinValue());
         command.setMaxValue(request.getMaxValue());
+        command.setIsActive(request.getIsActive() != null ? request.getIsActive() : false);
         command.setCreatedAt(LocalDateTime.now());
 
         return deviceCommandRepository.save(command);
@@ -57,6 +54,9 @@ public class DeviceCommandService {
     public DeviceCommand updateCommandType(Long id, UpdateCommandTypeRequest request) {
         DeviceCommand command = getCommandById(id);
 
+        if ("READ".equals(command.getOperationType())) {
+            throw new IllegalArgumentException("READ tipi komutlar API uzerinden guncellenemez, sadece veritabanindan elle degistirilebilir.");
+        }
         if (request.getMinValue() != null) {
             command.setMinValue(request.getMinValue());
         }
@@ -66,35 +66,39 @@ public class DeviceCommandService {
         if (request.getThresholdValue() != null) {
             command.setThresholdValue(request.getThresholdValue());
         }
-        if (request.getAlarmState() != null) {
-            if (!request.getAlarmState().equals("ACTIVE") && !request.getAlarmState().equals("INACTIVE")) {
-                throw new IllegalArgumentException("Gecersiz alarm state: " + request.getAlarmState());
-            }
-            command.setAlarmState(request.getAlarmState());
+        if (request.getAlarmEnabled() != null) {
+            command.setAlarmEnabled(request.getAlarmEnabled());
         }
-
+        if (request.getIsActive() != null) {
+            command.setIsActive(request.getIsActive());
+        }
 
         return deviceCommandRepository.save(command);
-    }
-
-    @Transactional
-    public void assignCommandsToDeviceType(String deviceType, List<Long> commandIds) {
-        for (Long commandId : commandIds) {
-            getCommandById(commandId);
-
-            entityManager.createNativeQuery(
-                            "INSERT INTO device_type_commands (device_type, command_id) VALUES (?, ?) " +
-                                    "ON CONFLICT DO NOTHING"
-                    )
-                    .setParameter(1, deviceType)
-                    .setParameter(2, commandId)
-                    .executeUpdate();
-        }
     }
     public List<DeviceCommand> getActiveAlarms() {
         return deviceCommandRepository.findAll().stream()
                 .filter(c -> "ACTIVE".equals(c.getAlarmState()))
                 .toList();
+    }
+
+    public List<DeviceCommand> getCommandsByDeviceId(Long deviceId) {
+        return deviceCommandRepository.findByDeviceId(deviceId);
+    }
+
+    public DeviceCommand updateAlarmSettings(Long id, AlarmSettingsRequest request) {
+        DeviceCommand command = getCommandById(id);
+
+        if (!"READ".equals(command.getOperationType())) {
+            throw new IllegalArgumentException("Alarm ayarlari sadece READ tipi komutlar icin gecerlidir.");
+        }
+
+        if (request.getThresholdValue() != null) {
+            command.setThresholdValue(request.getThresholdValue());
+        }
+        if (request.getAlarmEnabled() != null) {
+            command.setAlarmEnabled(request.getAlarmEnabled());
+        }
+        return deviceCommandRepository.save(command);
     }
 
 }

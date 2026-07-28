@@ -1,6 +1,6 @@
 package com.argela.iot_device_management.controller;
 
-import com.argela.iot_device_management.dto.AssignCommandToDeviceTypeRequest;
+import com.argela.iot_device_management.dto.AlarmSettingsRequest;
 import com.argela.iot_device_management.dto.CreateCommandTypeRequest;
 import com.argela.iot_device_management.dto.UpdateCommandTypeRequest;
 import com.argela.iot_device_management.entity.DeviceCommand;
@@ -47,15 +47,22 @@ public class DeviceCommandController {
         DeviceCommand updated = deviceCommandService.updateCommandType(id, request);
         return ResponseEntity.ok(updated);
     }
-
-    @PreAuthorize("hasRole('ADMIN')")
-    @PostMapping("/assign-to-device-type")
-    public ResponseEntity<String> assignCommandsToDeviceType(@RequestBody AssignCommandToDeviceTypeRequest request) {
-        deviceCommandService.assignCommandsToDeviceType(request.getDeviceType(), request.getCommandIds());
-        return ResponseEntity.ok(request.getCommandIds().size() + " komut, " + request.getDeviceType() + " tipine atandi.");
+    @GetMapping("/device/{deviceId}")
+    public List<DeviceCommand> getCommandsByDevice(@PathVariable Long deviceId) {
+        return deviceCommandService.getCommandsByDeviceId(deviceId);
     }
+
     @GetMapping("/alarms")
     public List<DeviceCommand> getActiveAlarms() {
         return deviceCommandService.getActiveAlarms();
+    }
+
+    @PreAuthorize("hasAnyRole('ADMIN', 'OPERATOR')")
+    @PutMapping("/{id}/alarm-settings")
+    public ResponseEntity<DeviceCommand> updateAlarmSettings(
+            @PathVariable Long id,
+            @RequestBody AlarmSettingsRequest request) {
+        DeviceCommand updated = deviceCommandService.updateAlarmSettings(id, request);
+        return ResponseEntity.ok(updated);
     }
 }

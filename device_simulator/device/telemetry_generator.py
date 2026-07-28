@@ -37,7 +37,7 @@ class TelemetryGenerator:
             if operational_state == "RUNNING":
                 target = self.postgres_client.get_latest_command_value(device_id, "SET_TEMPERATURE")
                 if target is not None:
-                    return round(target + random.uniform(-0.5, 0.5), 2)
+                    return round(target + random.uniform(-0.1, 0.1), 2)
 
         if data_type == "INTEGER":
             return random.randint(int(field["min"]), int(field["max"]))
@@ -48,11 +48,16 @@ class TelemetryGenerator:
 
     def _check_alarm(self, device_id, field, value):
         threshold = field.get("threshold")
-        current_state = field.get("alarm_state")
+        alarm_enabled = field.get("alarm_enabled", False)
 
-        if current_state != "ACTIVE":
-            return  
+        if not alarm_enabled or threshold is None:
+            return
 
-        if threshold is not None and isinstance(value, (int, float)) and value > threshold:
+        if isinstance(value, (int, float)) and value > threshold:
+            state = "ACTIVE"
             logger.warning(f"Device_{device_id} - {field['name']} esik degeri asti! ({value})")
-        
+        else:
+            state = "INACTIVE"
+
+        self.postgres_client.update_alarm_state(field["id"], state)
+        self.postgres_client.upsert_device_alarm(device_id, field["id"], value, state)

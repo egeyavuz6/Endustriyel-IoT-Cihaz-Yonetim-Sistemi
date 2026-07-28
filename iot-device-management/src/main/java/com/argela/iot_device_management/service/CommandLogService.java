@@ -10,7 +10,6 @@ import com.argela.iot_device_management.repository.DeviceCommandRepository;
 import com.argela.iot_device_management.repository.UserRepository;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.jwt.Jwt;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -38,6 +37,10 @@ public class CommandLogService {
 
         DeviceCommand command = deviceCommandRepository.findById(commandId)
                 .orElseThrow(() -> new ResourceNotFoundException("Command not found with id: " + commandId));
+
+        if ("READ".equals(command.getOperationType())) {
+            throw new IllegalArgumentException("READ tipi komutlar API uzerinden gonderilemez, sadece WRITE komutlar gonderilebilir.");
+        }
 
         User user = findOrCreateUser(jwt);
 
@@ -91,16 +94,20 @@ public class CommandLogService {
         return commandLogRepository.findByDeviceId(deviceId);
     }
 
-    public int sendCommandToLocation(String location, Long commandId) {
+    public int sendCommandToLocation(String location, String commandType) {
         List<Device> devicesInLocation = deviceService.getDevicesByLocationName(location);
-
-        DeviceCommand command = deviceCommandRepository.findById(commandId)
-                .orElseThrow(() -> new ResourceNotFoundException("Command not found with id: " + commandId));
 
         Jwt jwt = (Jwt) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         User user = findOrCreateUser(jwt);
 
+        int count = 0;
         for (Device device : devicesInLocation) {
+            DeviceCommand command = deviceCommandRepository
+                    .findByDeviceIdAndCommandTypeAndOperationType(device.getId(), commandType, "WRITE")
+                    .orElse(null);
+
+            if (command == null) continue; // bu cihazda bu komut tipi tanımlı değilse atla
+
             CommandLog log = new CommandLog();
             log.setDevice(device);
             log.setCommand(command);
@@ -108,9 +115,9 @@ public class CommandLogService {
             log.setStatus("PENDING");
             log.setCreatedAt(LocalDateTime.now());
             commandLogRepository.save(log);
+            count++;
         }
-
-        return devicesInLocation.size();
+        return count;
     }
 
     public CommandLog markAsExecuted(Long logId) {
