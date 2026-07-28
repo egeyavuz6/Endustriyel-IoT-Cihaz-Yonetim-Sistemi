@@ -1,5 +1,6 @@
 package com.argela.iot_device_management.service;
 
+import com.argela.iot_device_management.dto.AlarmSettingsRequest;
 import com.argela.iot_device_management.dto.UpdateCommandTypeRequest;
 import com.argela.iot_device_management.entity.Device;
 import com.argela.iot_device_management.entity.DeviceCommand;
@@ -82,6 +83,22 @@ public class DeviceCommandService {
 
     public List<DeviceCommand> getCommandsByDeviceId(Long deviceId) {
         return deviceCommandRepository.findByDeviceId(deviceId);
+    }
+
+    public DeviceCommand updateAlarmSettings(Long id, AlarmSettingsRequest request) {
+        DeviceCommand command = getCommandById(id);
+
+        if (!"READ".equals(command.getOperationType())) {
+            throw new IllegalArgumentException("Alarm ayarlari sadece READ tipi komutlar icin gecerlidir.");
+        }
+
+        if (request.getThresholdValue() != null) {
+            command.setThresholdValue(request.getThresholdValue());
+        }
+        if (request.getAlarmEnabled() != null) {
+            command.setAlarmEnabled(request.getAlarmEnabled());
+        }
+        return deviceCommandRepository.save(command);
     }
 
 }

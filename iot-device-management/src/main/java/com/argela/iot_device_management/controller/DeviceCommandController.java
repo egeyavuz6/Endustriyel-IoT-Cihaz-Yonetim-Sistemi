@@ -1,5 +1,6 @@
 package com.argela.iot_device_management.controller;
 
+import com.argela.iot_device_management.dto.AlarmSettingsRequest;
 import com.argela.iot_device_management.dto.CreateCommandTypeRequest;
 import com.argela.iot_device_management.dto.UpdateCommandTypeRequest;
 import com.argela.iot_device_management.entity.DeviceCommand;
@@ -54,5 +55,14 @@ public class DeviceCommandController {
     @GetMapping("/alarms")
     public List<DeviceCommand> getActiveAlarms() {
         return deviceCommandService.getActiveAlarms();
+    }
+
+    @PreAuthorize("hasAnyRole('ADMIN', 'OPERATOR')")
+    @PutMapping("/{id}/alarm-settings")
+    public ResponseEntity<DeviceCommand> updateAlarmSettings(
+            @PathVariable Long id,
+            @RequestBody AlarmSettingsRequest request) {
+        DeviceCommand updated = deviceCommandService.updateAlarmSettings(id, request);
+        return ResponseEntity.ok(updated);
     }
 }

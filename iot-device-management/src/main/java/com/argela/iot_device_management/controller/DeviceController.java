@@ -66,4 +66,6 @@ public class DeviceController {
     public Map<String, Map<String, Object>> getLocationSummary() {
         return deviceService.getDevicesByLocation();
     }
+
+
 }
