@@ -37,7 +37,7 @@ class TelemetryGenerator:
             if operational_state == "RUNNING":
                 target = self.postgres_client.get_latest_command_value(device_id, "SET_TEMPERATURE")
                 if target is not None:
-                    return round(target + random.uniform(-0.5, 0.5), 2)
+                    return round(target + random.uniform(-0.1, 0.1), 2)
 
         if data_type == "INTEGER":
             return random.randint(int(field["min"]), int(field["max"]))

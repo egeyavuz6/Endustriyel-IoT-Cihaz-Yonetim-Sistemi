@@ -83,7 +83,7 @@ def main():
 
     while time.time() - start_time < duration:
         if time.time() - last_refresh >= device_refresh_interval:
-            logger.info("Cihaz listesi kontrol ediliyor...")
+            # logger.info("Cihaz listesi kontrol ediliyor...")
 
             current_devices = postgres_client.get_all_devices()
             existing_ids = set(device_threads.keys())
@@ -91,7 +91,6 @@ def main():
             for device_id in current_devices.keys():
                 command_handler.check_and_execute_commands(device_id)
 
-            # YENİ: Aktif cihazların field listesini yenile
             for device_id, info in current_devices.items():
                 if device_id in device_generators:
                     fresh_fields = postgres_client.get_telemetry_fields(device_id)  # device_id
