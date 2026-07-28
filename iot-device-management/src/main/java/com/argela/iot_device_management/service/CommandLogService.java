@@ -94,16 +94,20 @@ public class CommandLogService {
         return commandLogRepository.findByDeviceId(deviceId);
     }
 
-    public int sendCommandToLocation(String location, Long commandId) {
+    public int sendCommandToLocation(String location, String commandType) {
         List<Device> devicesInLocation = deviceService.getDevicesByLocationName(location);
-
-        DeviceCommand command = deviceCommandRepository.findById(commandId)
-                .orElseThrow(() -> new ResourceNotFoundException("Command not found with id: " + commandId));
 
         Jwt jwt = (Jwt) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         User user = findOrCreateUser(jwt);
 
+        int count = 0;
         for (Device device : devicesInLocation) {
+            DeviceCommand command = deviceCommandRepository
+                    .findByDeviceIdAndCommandTypeAndOperationType(device.getId(), commandType, "WRITE")
+                    .orElse(null);
+
+            if (command == null) continue; // bu cihazda bu komut tipi tanımlı değilse atla
+
             CommandLog log = new CommandLog();
             log.setDevice(device);
             log.setCommand(command);
@@ -111,9 +115,9 @@ public class CommandLogService {
             log.setStatus("PENDING");
             log.setCreatedAt(LocalDateTime.now());
             commandLogRepository.save(log);
+            count++;
         }
-
-        return devicesInLocation.size();
+        return count;
     }
 
     public CommandLog markAsExecuted(Long logId) {

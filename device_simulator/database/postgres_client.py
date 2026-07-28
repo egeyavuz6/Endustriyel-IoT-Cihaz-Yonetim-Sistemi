@@ -26,7 +26,7 @@ class PostgresClient:
             with conn.cursor(cursor_factory=RealDictCursor) as cursor:
                 cursor.execute(
                     "SELECT d.id, d.type, "
-                    "COALESCE(dc.min_value, 0) as power_state "
+                    "COALESCE(dc.current_state, 'OFF') as power_state "
                     "FROM devices d "
                     "LEFT JOIN device_commands dc ON dc.device_id = d.id "
                     "AND dc.command_type = 'POWER_ON' AND dc.operation_type = 'READ'"
@@ -34,7 +34,7 @@ class PostgresClient:
                 rows = cursor.fetchall()
                 devices = {
                     row['id']: {
-                        "status": "ACTIVE" if row['power_state'] == 1 else "PASSIVE",
+                        "status": "ACTIVE" if row['power_state'] == 'ON' else "PASSIVE",
                         "type": row['type']
                     }
                     for row in rows
@@ -42,21 +42,19 @@ class PostgresClient:
                 logger.info(f"PostgreSQL'den {len(devices)} cihaz bulundu.")
                 return devices
         finally:
-            conn.close()    
+            conn.close()
     
     def get_device_status(self, device_id):
         conn = self.get_connection()
         try:
             with conn.cursor(cursor_factory=RealDictCursor) as cursor:
                 cursor.execute(
-                    "SELECT min_value FROM device_commands "
+                    "SELECT current_state FROM device_commands "
                     "WHERE device_id = %s AND command_type = 'POWER_ON' AND operation_type = 'READ'",
                     (device_id,)
                 )
                 row = cursor.fetchone()
-                if row and row["min_value"] == 1:
-                    return "ACTIVE"
-                return "PASSIVE"
+                return "ACTIVE" if row and row["current_state"] == "ON" else "PASSIVE"
         finally:
             conn.close()
 
@@ -96,14 +94,12 @@ class PostgresClient:
         try:
             with conn.cursor(cursor_factory=RealDictCursor) as cursor:
                 cursor.execute(
-                    "SELECT min_value FROM device_commands "
+                    "SELECT current_state FROM device_commands "
                     "WHERE device_id = %s AND command_type = 'START' AND operation_type = 'READ'",
                     (device_id,)
                 )
                 row = cursor.fetchone()
-                if row and row["min_value"] == 1:
-                    return "RUNNING"
-                return "STOPPED"
+                return row["current_state"] if row and row["current_state"] else "STOPPED"
         finally:
             conn.close()
 
@@ -137,14 +133,14 @@ class PostgresClient:
             conn.close()
 
     def update_device_status(self, device_id, status):
-        value = 1 if status == "ACTIVE" else 0
+        state = "ON" if status == "ACTIVE" else "OFF"
         conn = self.get_connection()
         try:
             with conn.cursor() as cursor:
                 cursor.execute(
-                    "UPDATE device_commands SET min_value = %s, max_value = %s "
+                    "UPDATE device_commands SET current_state = %s "
                     "WHERE device_id = %s AND command_type = 'POWER_ON' AND operation_type = 'READ'",
-                    (value, value, device_id)
+                    (state, device_id)
                 )
                 conn.commit()
         finally:
@@ -214,14 +210,13 @@ class PostgresClient:
             conn.close()
 
     def update_operational_state(self, device_id, state):
-        value = 1 if state == "RUNNING" else 0
         conn = self.get_connection()
         try:
             with conn.cursor() as cursor:
                 cursor.execute(
-                    "UPDATE device_commands SET min_value = %s, max_value = %s "
+                    "UPDATE device_commands SET current_state = %s "
                     "WHERE device_id = %s AND command_type = 'START' AND operation_type = 'READ'",
-                    (value, value, device_id)
+                    (state, device_id)
                 )
                 conn.commit()
         finally:

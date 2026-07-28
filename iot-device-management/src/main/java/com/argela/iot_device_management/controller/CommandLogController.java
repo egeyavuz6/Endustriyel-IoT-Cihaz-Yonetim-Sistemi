@@ -55,8 +55,8 @@ public class CommandLogController {
 
     @PreAuthorize("hasAnyRole('ADMIN', 'OPERATOR')")
     @PostMapping("/send-command-by-location")
-    public ResponseEntity<String> sendBulkCommandByLocation(@RequestBody  BulkCommandRequest request) {
-        int count = commandLogService.sendCommandToLocation(request.getLocation(), request.getCommandId());
+    public ResponseEntity<String> sendBulkCommandByLocation(@RequestBody BulkCommandRequest request) {
+        int count = commandLogService.sendCommandToLocation(request.getLocation(), request.getCommandType());
         return ResponseEntity.ok(count + " cihaza komut gonderildi.");
     }
 }
