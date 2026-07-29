@@ -54,10 +54,10 @@ public class KeycloakAdminService {
     public void createUser(String username, String email, String password, String role) {
         String adminToken = getAdminAccessToken();
 
-        // 1. ÖNCE rolü doğrula (kullanıcı oluşturmadan önce)
+
         Map<String, Object> roleDetails = getRoleDetails(role, adminToken);
 
-        // 2. Rol geçerliyse, kullanıcıyı oluştur
+
         String createUserUrl = serverUrl + "/admin/realms/" + targetRealm + "/users";
 
         Map<String, Object> credentials = Map.of(
@@ -80,10 +80,9 @@ public class KeycloakAdminService {
         HttpEntity<Map<String, Object>> request = new HttpEntity<>(userPayload, headers);
         restTemplate.postForEntity(createUserUrl, request, Void.class);
 
-        // 3. Kullanıcının ID'sini bul
         String userId = getUserIdByUsername(username, adminToken);
 
-        // 4. Rolü ata
+
         assignRoleToUser(userId, roleDetails, adminToken);
     }
 

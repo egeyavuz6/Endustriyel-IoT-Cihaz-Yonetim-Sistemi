@@ -1,6 +1,6 @@
 package com.argela.iot_device_management.controller;
 
-import com.argela.iot_device_management.dto.AlarmSettingsRequest;
+import com.argela.iot_device_management.dto.TelemetrySettingsRequest;
 import com.argela.iot_device_management.dto.CreateCommandTypeRequest;
 import com.argela.iot_device_management.dto.UpdateCommandTypeRequest;
 import com.argela.iot_device_management.entity.DeviceCommand;
@@ -58,11 +58,11 @@ public class DeviceCommandController {
     }
 
     @PreAuthorize("hasAnyRole('ADMIN', 'OPERATOR')")
-    @PutMapping("/{id}/alarm-settings")
-    public ResponseEntity<DeviceCommand> updateAlarmSettings(
+    @PutMapping("/{id}/telemetry-settings")
+    public ResponseEntity<DeviceCommand> updateTelemetrySettings(
             @PathVariable Long id,
-            @RequestBody AlarmSettingsRequest request) {
-        DeviceCommand updated = deviceCommandService.updateAlarmSettings(id, request);
+            @RequestBody TelemetrySettingsRequest request) {
+        DeviceCommand updated = deviceCommandService.updateTelemetrySettings(id, request);
         return ResponseEntity.ok(updated);
     }
 }

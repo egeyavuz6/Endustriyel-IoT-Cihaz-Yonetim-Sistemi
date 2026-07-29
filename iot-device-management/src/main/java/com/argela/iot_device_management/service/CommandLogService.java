@@ -106,7 +106,7 @@ public class CommandLogService {
                     .findByDeviceIdAndCommandTypeAndOperationType(device.getId(), commandType, "WRITE")
                     .orElse(null);
 
-            if (command == null) continue; // bu cihazda bu komut tipi tanımlı değilse atla
+            if (command == null) continue;
 
             CommandLog log = new CommandLog();
             log.setDevice(device);

@@ -1,5 +1,4 @@
 package com.argela.iot_device_management.service;
-
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import com.argela.iot_device_management.entity.Device;
@@ -82,17 +81,14 @@ public class DeviceService {
 
     private boolean isDeviceActive(Long deviceId) {
         Object result = entityManager.createNativeQuery(
-                        "SELECT min_value FROM device_commands " +
-                                "WHERE device_id = :deviceId AND command_type = 'POWER_ON' AND operation_type = 'READ'"
+                "SELECT current_state FROM device_commands WHERE device_id = :deviceId AND command_type = 'POWER_ON' AND operation_type = 'READ'"
                 )
                 .setParameter("deviceId", deviceId)
                 .getResultStream()
                 .findFirst()
                 .orElse(null);
-
-        return result != null && ((Number) result).intValue() == 1;
+        return "ON".equals(result);
     }
-
     public List<Device> getDevicesByLocationName(String location) {
         return deviceRepository.findByLocation(location);
     }
