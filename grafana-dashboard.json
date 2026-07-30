@@ -702,85 +702,98 @@
     }
   },
   "layout": {
-    "kind": "GridLayout",
+    "kind": "TabsLayout",
     "spec": {
-      "items": [
+      "tabs": [
         {
-          "kind": "GridLayoutItem",
+          "kind": "TabsLayoutTab",
           "spec": {
-            "element": {
-              "kind": "ElementReference",
-              "name": "panel-3"
+            "layout": {
+              "kind": "GridLayout",
+              "spec": {
+                "items": [
+                  {
+                    "kind": "GridLayoutItem",
+                    "spec": {
+                      "element": {
+                        "kind": "ElementReference",
+                        "name": "panel-3"
+                      },
+                      "height": 8,
+                      "width": 9,
+                      "x": 0,
+                      "y": 0
+                    }
+                  },
+                  {
+                    "kind": "GridLayoutItem",
+                    "spec": {
+                      "element": {
+                        "kind": "ElementReference",
+                        "name": "panel-2"
+                      },
+                      "height": 8,
+                      "width": 15,
+                      "x": 9,
+                      "y": 0
+                    }
+                  },
+                  {
+                    "kind": "GridLayoutItem",
+                    "spec": {
+                      "element": {
+                        "kind": "ElementReference",
+                        "name": "panel-1"
+                      },
+                      "height": 8,
+                      "width": 9,
+                      "x": 0,
+                      "y": 8
+                    }
+                  },
+                  {
+                    "kind": "GridLayoutItem",
+                    "spec": {
+                      "element": {
+                        "kind": "ElementReference",
+                        "name": "panel-6"
+                      },
+                      "height": 8,
+                      "width": 15,
+                      "x": 9,
+                      "y": 8
+                    }
+                  },
+                  {
+                    "kind": "GridLayoutItem",
+                    "spec": {
+                      "element": {
+                        "kind": "ElementReference",
+                        "name": "panel-5"
+                      },
+                      "height": 8,
+                      "width": 9,
+                      "x": 0,
+                      "y": 16
+                    }
+                  },
+                  {
+                    "kind": "GridLayoutItem",
+                    "spec": {
+                      "element": {
+                        "kind": "ElementReference",
+                        "name": "panel-4"
+                      },
+                      "height": 8,
+                      "width": 15,
+                      "x": 9,
+                      "y": 16
+                    }
+                  }
+                ]
+              }
             },
-            "height": 8,
-            "width": 9,
-            "x": 0,
-            "y": 0
-          }
-        },
-        {
-          "kind": "GridLayoutItem",
-          "spec": {
-            "element": {
-              "kind": "ElementReference",
-              "name": "panel-2"
-            },
-            "height": 8,
-            "width": 15,
-            "x": 9,
-            "y": 0
-          }
-        },
-        {
-          "kind": "GridLayoutItem",
-          "spec": {
-            "element": {
-              "kind": "ElementReference",
-              "name": "panel-1"
-            },
-            "height": 8,
-            "width": 9,
-            "x": 0,
-            "y": 8
-          }
-        },
-        {
-          "kind": "GridLayoutItem",
-          "spec": {
-            "element": {
-              "kind": "ElementReference",
-              "name": "panel-6"
-            },
-            "height": 8,
-            "width": 15,
-            "x": 9,
-            "y": 8
-          }
-        },
-        {
-          "kind": "GridLayoutItem",
-          "spec": {
-            "element": {
-              "kind": "ElementReference",
-              "name": "panel-5"
-            },
-            "height": 8,
-            "width": 9,
-            "x": 0,
-            "y": 16
-          }
-        },
-        {
-          "kind": "GridLayoutItem",
-          "spec": {
-            "element": {
-              "kind": "ElementReference",
-              "name": "panel-4"
-            },
-            "height": 8,
-            "width": 15,
-            "x": 9,
-            "y": 16
+            "title": "New tab"
           }
         }
       ]
@@ -813,10 +826,10 @@
       "1d"
     ],
     "fiscalYearStartMonth": 0,
-    "from": "2026-07-20T22:10:51.118Z",
+    "from": "now-5m",
     "hideTimepicker": false,
     "timezone": "browser",
-    "to": "2026-07-21T19:37:25.486Z"
+    "to": "now"
   },
   "title": "Device Telemetry Dashboard",
   "variables": [
@@ -826,22 +839,10 @@
         "allowCustomValue": true,
         "current": {
           "text": [
-            "16",
-            "17",
-            "19",
-            "15",
-            "12",
-            "13",
-            "14"
+            "35"
           ],
           "value": [
-            "16",
-            "17",
-            "19",
-            "15",
-            "12",
-            "13",
-            "14"
+            "35"
           ]
         },
         "definition": "import \"influxdata/influxdb/schema\"\r\nschema.tagValues(bucket: \"device_telemetry\", tag: \"device_id\")\r\n",
@@ -873,8 +874,8 @@
       "spec": {
         "allowCustomValue": true,
         "current": {
-          "text": "min",
-          "value": "min"
+          "text": "max",
+          "value": "max"
         },
         "hide": "dontHide",
         "includeAll": false,
@@ -891,8 +892,8 @@
       "spec": {
         "allowCustomValue": true,
         "current": {
-          "text": "temperature",
-          "value": "temperature"
+          "text": "power_on",
+          "value": "power_on"
         },
         "definition": "import \"influxdata/influxdb/schema\"\r\nschema.fieldKeys(bucket: \"device_telemetry\")",
         "hide": "dontHide",
