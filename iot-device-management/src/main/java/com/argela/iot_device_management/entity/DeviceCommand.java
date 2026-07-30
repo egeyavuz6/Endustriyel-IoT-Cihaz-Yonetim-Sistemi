@@ -15,7 +15,7 @@ public class DeviceCommand {
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "device_id")
+    @JoinColumn(name = "device_id", nullable = false)
     private Device device;
 
     @Column(name = "command_type", nullable = false)

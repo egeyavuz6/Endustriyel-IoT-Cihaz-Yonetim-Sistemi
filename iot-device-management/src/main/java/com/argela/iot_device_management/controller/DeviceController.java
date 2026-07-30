@@ -19,12 +19,10 @@ import java.util.Map;
 public class DeviceController {
 
     private final DeviceService deviceService;
-    private final DeviceCommandService deviceCommandService;
     private final CommandLogService commandLogService;
 
-    public DeviceController(DeviceService deviceService, DeviceCommandService deviceCommandService, CommandLogService commandLogService) {
+    public DeviceController(DeviceService deviceService, CommandLogService commandLogService) {
         this.deviceService = deviceService;
-        this.deviceCommandService = deviceCommandService;
         this.commandLogService = commandLogService;
     }
 

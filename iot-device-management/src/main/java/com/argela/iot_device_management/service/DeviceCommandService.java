@@ -1,6 +1,6 @@
 package com.argela.iot_device_management.service;
 
-import com.argela.iot_device_management.dto.AlarmSettingsRequest;
+import com.argela.iot_device_management.dto.TelemetrySettingsRequest;
 import com.argela.iot_device_management.dto.UpdateCommandTypeRequest;
 import com.argela.iot_device_management.entity.Device;
 import com.argela.iot_device_management.entity.DeviceCommand;
@@ -9,9 +9,6 @@ import com.argela.iot_device_management.repository.DeviceCommandRepository;
 import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import com.argela.iot_device_management.dto.CreateCommandTypeRequest;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
-import org.springframework.transaction.annotation.Transactional;
 
 
 import java.util.List;
@@ -85,19 +82,26 @@ public class DeviceCommandService {
         return deviceCommandRepository.findByDeviceId(deviceId);
     }
 
-    public DeviceCommand updateAlarmSettings(Long id, AlarmSettingsRequest request) {
+    public DeviceCommand updateTelemetrySettings(Long id, TelemetrySettingsRequest request) {
         DeviceCommand command = getCommandById(id);
 
         if (!"READ".equals(command.getOperationType())) {
-            throw new IllegalArgumentException("Alarm ayarlari sadece READ tipi komutlar icin gecerlidir.");
+            throw new IllegalArgumentException("Telemetri ayarlari sadece READ tipi komutlar icin gecerlidir.");
         }
 
         if (request.getThresholdValue() != null) {
             command.setThresholdValue(request.getThresholdValue());
         }
         if (request.getAlarmEnabled() != null) {
+            //if (!request.getAlarmEnabled()) {             Alarmı kapatınca durumun ACTIVE olması beklenen durumdu
+              //  command.setAlarmState("INACTIVE");        bu yüzden burayı yorum satırına aldım.
+            //}
             command.setAlarmEnabled(request.getAlarmEnabled());
         }
+        if (request.getIsActive() != null) {
+            command.setIsActive(request.getIsActive());
+        }
+
         return deviceCommandRepository.save(command);
     }
 
