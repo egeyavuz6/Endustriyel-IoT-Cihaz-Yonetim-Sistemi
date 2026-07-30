@@ -93,6 +93,9 @@ public class DeviceCommandService {
             command.setThresholdValue(request.getThresholdValue());
         }
         if (request.getAlarmEnabled() != null) {
+            //if (!request.getAlarmEnabled()) {             Alarmı kapatınca durumun ACTIVE olması beklenen durumdu
+              //  command.setAlarmState("INACTIVE");        bu yüzden burayı yorum satırına aldım.
+            //}
             command.setAlarmEnabled(request.getAlarmEnabled());
         }
         if (request.getIsActive() != null) {
