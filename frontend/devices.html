@@ -7,8 +7,13 @@
 </head>
 <body>
     <nav>
-        <h2>IoT Cihaz Yonetim Sistemi</h2>
-        <button id="logoutButton">Cikis Yap</button>
+    <h2>IoT Cihaz Yonetim Sistemi</h2>
+    <div class="nav-links">
+        <a href="dashboard.html">Dashboard</a>
+        <a href="locations.html">Lokasyonlar</a>
+        <a href="devices.html">Cihazlar</a>
+    </div>
+    <button id="logoutButton">Cikis Yap</button>
     </nav>
 
     <main>
@@ -31,12 +36,12 @@
         <table>
             <thead>
                 <tr>
-                    <th>ID</th>
-                    <th>Isim</th>
-                    <th>Seri No</th>
-                    <th>Tip</th>
-                    <th>Lokasyon</th>
-                    <th>Durum</th>
+                    <th onclick="sortTable('id')">ID</th>
+                    <th onclick="sortTable('name')">Isim</th>
+                    <th onclick="sortTable('serialNumber')">Seri No</th>
+                    <th onclick="sortTable('type')">Tip</th>
+                    <th onclick="sortTable('location')">Lokasyon</th>
+                    <th onclick="sortTable('status')">Durum</th>
                     <th>Islem</th>
                 </tr>
             </thead>

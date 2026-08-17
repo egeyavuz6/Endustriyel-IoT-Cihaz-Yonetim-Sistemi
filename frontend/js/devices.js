@@ -68,3 +68,32 @@ function renderDevicesTable(devices) {
         tableBody.appendChild(row);
     });
 }
+
+let currentDevices = [];
+let sortDirection = {};
+
+async function loadDevices() {
+    try {
+        currentDevices = await getDevicesWithStatus();
+        renderDevicesTable(currentDevices);
+    } catch (error) {
+        console.error(error);
+        alert("Cihazlar yuklenirken hata olustu.");
+    }
+}
+
+function sortTable(field) {
+    const direction = sortDirection[field] === "asc" ? "desc" : "asc";
+    sortDirection = { [field]: direction };
+
+    currentDevices.sort(function (a, b) {
+        const valA = a[field];
+        const valB = b[field];
+
+        if (valA < valB) return direction === "asc" ? -1 : 1;
+        if (valA > valB) return direction === "asc" ? 1 : -1;
+        return 0;
+    });
+
+    renderDevicesTable(currentDevices);
+}

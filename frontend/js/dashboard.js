@@ -16,7 +16,7 @@ document.addEventListener("DOMContentLoaded", async function () {
 
 async function loadSystemHealth() {
     try {
-        const devices = await getAllDevices();
+        const devices = await getDevicesWithStatus();
         const alarms = await getActiveAlarms();
 
         const total = devices.length;
@@ -49,7 +49,7 @@ async function loadActiveAlarms() {
             const card = document.createElement("div");
             card.className = "alarm-card";
             card.innerHTML = `
-                <strong>${alarm.commandType}</strong>
+                <strong>${alarm.device ? alarm.device.name : "Bilinmeyen Cihaz"} - ${alarm.commandType}</strong>
                 <p>Esik degeri: ${alarm.thresholdValue}</p>
             `;
             container.appendChild(card);
@@ -70,9 +70,7 @@ function renderDeviceStatusList(devices) {
         const item = document.createElement("a");
         item.href = `device-detail.html?id=${device.id}`;
         item.className = `device-status-item ${statusClass}`;
-        item.innerHTML = `
-            ${statusIcon} <strong>${device.name}</strong> - ${device.type} - ${device.location}
-        `;
+        item.innerHTML = `${statusIcon} <strong>${device.name}</strong> - ${device.type} - ${device.location}`;
         container.appendChild(item);
     });
 }
@@ -122,3 +120,4 @@ async function loadLocationOverview() {
         console.error("Lokasyon verisi yuklenemedi:", error);
     }
 }
+

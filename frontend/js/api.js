@@ -76,3 +76,30 @@ async function updateTelemetrySettings(commandId, settings) {
     if (!response.ok) throw new Error("Ayarlar guncellenemedi.");
     return await response.json();
 }
+
+async function getActiveAlarms() {
+    const response = await fetch(`${API_BASE_URL}/api/commands/alarms`, {
+        method: "GET",
+        headers: getAuthHeaders()
+    });
+    if (!response.ok) throw new Error("Alarmlar yuklenemedi.");
+    return await response.json();
+}
+
+async function getRecentActivity() {
+    const response = await fetch(`${API_BASE_URL}/api/command-logs/recent`, {
+        method: "GET",
+        headers: getAuthHeaders()
+    });
+    if (!response.ok) throw new Error("Son aktiviteler yuklenemedi.");
+    return await response.json();
+}
+
+async function getDevicesByLocation() {
+    const response = await fetch(`${API_BASE_URL}/api/devices/location-summary`, {
+        method: "GET",
+        headers: getAuthHeaders()
+    });
+    if (!response.ok) throw new Error("Lokasyon verisi yuklenemedi.");
+    return await response.json();
+}
