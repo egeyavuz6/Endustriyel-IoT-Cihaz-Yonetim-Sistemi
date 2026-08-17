@@ -116,6 +116,27 @@ public class DeviceService {
                 .orElse(null);
         return "ON".equals(result);
     }
+
+    public List<Map<String, Object>> getAllDevicesWithStatus() {
+        List<Object[]> rows = entityManager.createNativeQuery(
+                "SELECT d.id, d.name, d.serial_number, d.type, d.location, " +
+                        "CASE WHEN dc.current_state = 'ON' THEN 'ACTIVE' ELSE 'PASSIVE' END as status " +
+                        "FROM devices d " +
+                        "LEFT JOIN device_commands dc ON dc.device_id = d.id " +
+                        "AND dc.command_type = 'POWER_ON' AND dc.operation_type = 'R/W'"
+        ).getResultList();
+
+        return rows.stream().map(row -> {
+            Map<String, Object> map = new HashMap<>();
+            map.put("id", row[0]);
+            map.put("name", row[1]);
+            map.put("serialNumber", row[2]);
+            map.put("type", row[3]);
+            map.put("location", row[4]);
+            map.put("status", row[5]);
+            return map;
+        }).collect(Collectors.toList());
+    }
     public List<Device> getDevicesByLocationName(String location) {
         return deviceRepository.findByLocation(location);
     }

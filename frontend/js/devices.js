@@ -4,6 +4,11 @@ document.addEventListener("DOMContentLoaded", async function () {
         return;
     }
 
+    document.getElementById("logoutButton").addEventListener("click", function () {
+        localStorage.removeItem("access_token");
+        window.location.href = "index.html";
+    });
+
     await loadDevices();
 
     document.getElementById("createDeviceForm").addEventListener("submit", async function (event) {
@@ -14,11 +19,11 @@ document.addEventListener("DOMContentLoaded", async function () {
 
 async function loadDevices() {
     try {
-        const devices = await getAllDevices();
+        const devices = await getDevicesWithStatus();
         renderDevicesTable(devices);
     } catch (error) {
         console.error(error);
-        alert("Cihazlar yüklenirken bir hata oluştu.");
+        alert("Cihazlar yuklenirken hata olustu.");
     }
 }
 
@@ -29,19 +34,15 @@ async function handleCreateDevice() {
         name: document.getElementById("deviceName").value,
         serialNumber: document.getElementById("serialNumber").value,
         type: document.getElementById("deviceType").value,
-        location: document.getElementById("location").value,
-        status: "ACTIVE"
+        location: document.getElementById("location").value
     };
 
     try {
         await createDevice(deviceData);
-        formMessage.textContent = "Cihaz başarıyla eklendi!";
+        formMessage.textContent = "Cihaz basariyla eklendi!";
         formMessage.style.color = "green";
-
         document.getElementById("createDeviceForm").reset();
-
         await loadDevices();
-
     } catch (error) {
         formMessage.textContent = "Hata: " + error.message;
         formMessage.style.color = "red";
@@ -53,6 +54,7 @@ function renderDevicesTable(devices) {
     tableBody.innerHTML = "";
 
     devices.forEach(function (device) {
+        const statusClass = device.status === "ACTIVE" ? "status-active" : "status-passive";
         const row = document.createElement("tr");
         row.innerHTML = `
             <td>${device.id}</td>
@@ -60,7 +62,7 @@ function renderDevicesTable(devices) {
             <td>${device.serialNumber}</td>
             <td>${device.type}</td>
             <td>${device.location}</td>
-            <td>${device.status}</td>
+            <td class="${statusClass}">${device.status}</td>
             <td><a href="device-detail.html?id=${device.id}">Detay</a></td>
         `;
         tableBody.appendChild(row);

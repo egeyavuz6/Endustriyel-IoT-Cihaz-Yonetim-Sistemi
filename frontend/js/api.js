@@ -8,16 +8,21 @@ function getAuthHeaders() {
     };
 }
 
-async function getAllDevices() {
-    const response = await fetch(`${API_BASE_URL}/api/devices`, {
+async function getDevicesWithStatus() {
+    const response = await fetch(`${API_BASE_URL}/api/devices/with-status`, {
         method: "GET",
         headers: getAuthHeaders()
     });
+    if (!response.ok) throw new Error("Cihazlar yuklenemedi.");
+    return await response.json();
+}
 
-    if (!response.ok) {
-        throw new Error("Cihazlar yüklenemedi.");
-    }
-
+async function getDeviceById(id) {
+    const response = await fetch(`${API_BASE_URL}/api/devices/${id}`, {
+        method: "GET",
+        headers: getAuthHeaders()
+    });
+    if (!response.ok) throw new Error("Cihaz bilgisi alinamadi.");
     return await response.json();
 }
 
@@ -27,77 +32,47 @@ async function createDevice(deviceData) {
         headers: getAuthHeaders(),
         body: JSON.stringify(deviceData)
     });
-
-    if (!response.ok) {
-        throw new Error("Cihaz oluşturulamadı.");
-    }
-
+    if (!response.ok) throw new Error("Cihaz olusturulamadi.");
     return await response.json();
 }
 
-async function getDeviceById(id) {
-    const response = await fetch(`${API_BASE_URL}/api/devices/${id}`, {
+async function getDeviceCommands(deviceId) {
+    const response = await fetch(`${API_BASE_URL}/api/commands/device/${deviceId}`, {
         method: "GET",
         headers: getAuthHeaders()
     });
-    if (!response.ok) throw new Error("Cihaz bilgisi alınamadı.");
+    if (!response.ok) throw new Error("Komutlar alinamadi.");
     return await response.json();
 }
 
-async function getDeviceCommands(id) {
-    const response = await fetch(`${API_BASE_URL}/api/devices/${id}/commands`, {
+async function getDeviceCommandLogs(deviceId) {
+    const response = await fetch(`${API_BASE_URL}/api/devices/${deviceId}/commands`, {
         method: "GET",
         headers: getAuthHeaders()
     });
-    if (!response.ok) throw new Error("Komutlar alınamadı.");
+    if (!response.ok) throw new Error("Komut gecmisi alinamadi.");
     return await response.json();
 }
 
-async function sendCommand(deviceId, commandType) {
-    const response = await fetch(`${API_BASE_URL}/api/commands`, {
+async function sendCommand(deviceId, commandId, commandValue = null) {
+    const response = await fetch(`${API_BASE_URL}/api/command-logs/send-command`, {
         method: "POST",
         headers: getAuthHeaders(),
-        body: JSON.stringify({
-            device: { id: deviceId },
-            commandType: commandType
-        })
+        body: JSON.stringify({ deviceId, commandId, commandValue })
     });
-    if (!response.ok) throw new Error("Komut gönderilemedi.");
+    if (!response.ok) {
+        const err = await response.json();
+        throw new Error(err.message || "Komut gonderilemedi.");
+    }
     return await response.json();
 }
 
-async function getDeviceTelemetry(id, hours = 24) {
-    const response = await fetch(`${API_BASE_URL}/api/devices/${id}/telemetry?hours=${hours}`, {
-        method: "GET",
-        headers: getAuthHeaders()
+async function updateTelemetrySettings(commandId, settings) {
+    const response = await fetch(`${API_BASE_URL}/api/commands/${commandId}/telemetry-settings`, {
+        method: "PUT",
+        headers: getAuthHeaders(),
+        body: JSON.stringify(settings)
     });
-    if (!response.ok) throw new Error("Telemetry verisi alınamadı.");
-    return await response.json();
-}
-
-async function getActiveAlarms() {
-    const response = await fetch(`${API_BASE_URL}/api/commands/alarms`, {
-        method: "GET",
-        headers: getAuthHeaders()
-    });
-    if (!response.ok) throw new Error("Alarmlar yuklenemedi.");
-    return await response.json();
-}
-
-async function getRecentActivity() {
-    const response = await fetch(`${API_BASE_URL}/api/command-logs/recent`, {
-        method: "GET",
-        headers: getAuthHeaders()
-    });
-    if (!response.ok) throw new Error("Son aktiviteler yuklenemedi.");
-    return await response.json();
-}
-
-async function getDevicesByLocation() {
-    const response = await fetch(`${API_BASE_URL}/api/devices/by-location`, {
-        method: "GET",
-        headers: getAuthHeaders()
-    });
-    if (!response.ok) throw new Error("Lokasyon verisi yuklenemedi.");
+    if (!response.ok) throw new Error("Ayarlar guncellenemedi.");
     return await response.json();
 }
