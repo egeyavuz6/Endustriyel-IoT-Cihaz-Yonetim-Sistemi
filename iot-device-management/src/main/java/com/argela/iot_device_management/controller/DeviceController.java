@@ -30,7 +30,7 @@ public class DeviceController {
     public List<Device> getAllDevices() {
         return deviceService.getAllDevices();
     }
-    
+
     @GetMapping("/with-status")
     public List<Map<String, Object>> getAllDevicesWithStatus() {
         return deviceService.getAllDevicesWithStatus();
