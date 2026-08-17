@@ -15,7 +15,6 @@ class TelemetryGenerator:
         operational_state = self.postgres_client.get_operational_state(device_id)
 
         if operational_state == "STOPPED":
-            logger.info(f"Cihaz {device_id} STOPPED durumunda, veri uretilmiyor.")
             return None
 
         point = Point("device_telemetry").tag("device_id", str(device_id))
@@ -24,6 +23,8 @@ class TelemetryGenerator:
             value = self._generate_value(field, device_id)
             point = point.field(field["name"], value)
             self._check_alarm(device_id, field, value)
+
+        self.postgres_client.update_last_seen(device_id)  
 
         logger.info(f"Veri uretildi (device_id={device_id}): {point.to_line_protocol()}")
         return point

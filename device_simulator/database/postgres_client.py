@@ -240,3 +240,35 @@ class PostgresClient:
                 conn.commit()
         finally:
             conn.close()
+
+    def update_last_seen(self, device_id):
+        conn = self.get_connection()
+        try:
+            with conn.cursor() as cursor:
+                cursor.execute(
+                    "UPDATE devices SET last_seen_at = NOW(), connection_status = 'ONLINE' "
+                    "WHERE id = %s",
+                    (device_id,)
+                )
+                conn.commit()
+        finally:
+            conn.close()
+
+    def check_and_update_offline_devices(self):
+        conn = self.get_connection()
+        try:
+            with conn.cursor() as cursor:
+                cursor.execute(
+                    "UPDATE devices d "
+                    "SET connection_status = 'OFFLINE' "
+                    "FROM device_types dt "
+                    "WHERE d.type = dt.device_type "
+                    "AND d.connection_status = 'ONLINE' "
+                    "AND d.last_seen_at < NOW() - (dt.offline_threshold_minutes || ' minutes')::INTERVAL"
+                )
+                affected = cursor.rowcount
+                conn.commit()
+                if affected > 0:
+                    logger.warning(f"{affected} cihaz OFFLINE olarak isaretlendi.")
+        finally:
+            conn.close()
