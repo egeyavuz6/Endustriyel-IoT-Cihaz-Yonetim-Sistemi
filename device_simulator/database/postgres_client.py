@@ -29,7 +29,7 @@ class PostgresClient:
                     "COALESCE(dc.current_state, 'OFF') as power_state "
                     "FROM devices d "
                     "LEFT JOIN device_commands dc ON dc.device_id = d.id "
-                    "AND dc.command_type = 'POWER_ON' AND dc.operation_type = 'READ'"
+                    "AND dc.command_type = 'POWER_ON' AND dc.operation_type = 'R/W'"
                 )
                 rows = cursor.fetchall()
                 devices = {
@@ -50,11 +50,26 @@ class PostgresClient:
             with conn.cursor(cursor_factory=RealDictCursor) as cursor:
                 cursor.execute(
                     "SELECT current_state FROM device_commands "
-                    "WHERE device_id = %s AND command_type = 'POWER_ON' AND operation_type = 'READ'",
+                    "WHERE device_id = %s AND command_type = 'POWER_ON' AND operation_type = 'R/W'",
                     (device_id,)
                 )
                 row = cursor.fetchone()
                 return "ACTIVE" if row and row["current_state"] == "ON" else "PASSIVE"
+        finally:
+            conn.close()
+
+
+    def update_device_status(self, device_id, status):
+        state = "ON" if status == "ACTIVE" else "OFF"
+        conn = self.get_connection()
+        try:
+            with conn.cursor() as cursor:
+                cursor.execute(
+                    "UPDATE device_commands SET current_state = %s "
+                    "WHERE device_id = %s AND command_type = 'POWER_ON' AND operation_type = 'R/W'",
+                    (state, device_id)
+                )
+                conn.commit()
         finally:
             conn.close()
 
@@ -95,13 +110,14 @@ class PostgresClient:
             with conn.cursor(cursor_factory=RealDictCursor) as cursor:
                 cursor.execute(
                     "SELECT current_state FROM device_commands "
-                    "WHERE device_id = %s AND command_type = 'START' AND operation_type = 'READ'",
+                    "WHERE device_id = %s AND command_type = 'START' AND operation_type = 'R/W'",
                     (device_id,)
                 )
                 row = cursor.fetchone()
                 return row["current_state"] if row and row["current_state"] else "STOPPED"
         finally:
             conn.close()
+
 
     def get_telemetry_fields(self, device_id):
         conn = self.get_connection()
@@ -132,19 +148,7 @@ class PostgresClient:
         finally:
             conn.close()
 
-    def update_device_status(self, device_id, status):
-        state = "ON" if status == "ACTIVE" else "OFF"
-        conn = self.get_connection()
-        try:
-            with conn.cursor() as cursor:
-                cursor.execute(
-                    "UPDATE device_commands SET current_state = %s "
-                    "WHERE device_id = %s AND command_type = 'POWER_ON' AND operation_type = 'READ'",
-                    (state, device_id)
-                )
-                conn.commit()
-        finally:
-            conn.close()
+    
 
     def update_alarm_state(self, command_id, alarm_state):
         conn = self.get_connection()
@@ -215,7 +219,7 @@ class PostgresClient:
             with conn.cursor() as cursor:
                 cursor.execute(
                     "UPDATE device_commands SET current_state = %s "
-                    "WHERE device_id = %s AND command_type = 'START' AND operation_type = 'READ'",
+                    "WHERE device_id = %s AND command_type = 'START' AND operation_type = 'R/W'",
                     (state, device_id)
                 )
                 conn.commit()

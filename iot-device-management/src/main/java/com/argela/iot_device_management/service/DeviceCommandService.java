@@ -23,6 +23,7 @@ public class DeviceCommandService {
     public DeviceCommandService(DeviceCommandRepository deviceCommandRepository, DeviceService deviceService) {
         this.deviceCommandRepository = deviceCommandRepository;
         this.deviceService = deviceService;
+
     }
 
     public List<DeviceCommand> getAllCommands() {
@@ -52,7 +53,10 @@ public class DeviceCommandService {
         DeviceCommand command = getCommandById(id);
 
         if ("READ".equals(command.getOperationType())) {
-            throw new IllegalArgumentException("READ tipi komutlar API uzerinden guncellenemez, sadece veritabanindan elle degistirilebilir.");
+            throw new IllegalArgumentException("READ tipi komutlar bu endpoint uzerinden guncellenemez.");
+        }
+        if ("R/W".equals(command.getOperationType())){
+            throw new IllegalArgumentException("R/W tipi komutlar bu endpoint uzerinden guncellenemez.");
         }
         if (request.getMinValue() != null) {
             command.setMinValue(request.getMinValue());
@@ -104,5 +108,7 @@ public class DeviceCommandService {
 
         return deviceCommandRepository.save(command);
     }
+
+
 
 }
