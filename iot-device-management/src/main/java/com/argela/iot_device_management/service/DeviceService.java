@@ -1,4 +1,8 @@
 package com.argela.iot_device_management.service;
+import com.argela.iot_device_management.entity.DeviceCommand;
+import com.argela.iot_device_management.entity.DeviceTypeTemplate;
+import com.argela.iot_device_management.repository.DeviceCommandRepository;
+import com.argela.iot_device_management.repository.DeviceTypeTemplateRepository;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import com.argela.iot_device_management.entity.Device;
@@ -6,6 +10,7 @@ import com.argela.iot_device_management.repository.DeviceRepository;
 import org.springframework.stereotype.Service;
 import com.argela.iot_device_management.exception.ResourceNotFoundException;
 
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -15,9 +20,13 @@ import java.util.stream.Collectors;
 public class DeviceService {
 
     private final DeviceRepository deviceRepository;
+    private final DeviceCommandRepository deviceCommandRepository;
+    private final DeviceTypeTemplateRepository deviceTypeTemplateRepository;
 
-    public DeviceService(DeviceRepository deviceRepository) {
+    public DeviceService(DeviceRepository deviceRepository,  DeviceCommandRepository deviceCommandRepository, DeviceTypeTemplateRepository deviceTypeTemplateRepository) {
         this.deviceRepository = deviceRepository;
+        this.deviceCommandRepository = deviceCommandRepository;
+        this.deviceTypeTemplateRepository = deviceTypeTemplateRepository;
     }
 
     public List<Device> getAllDevices() {
@@ -29,7 +38,25 @@ public class DeviceService {
                 .orElseThrow(() -> new ResourceNotFoundException("Device not found with id: " + id));
     }
     public Device createDevice(Device device) {
-        return deviceRepository.save(device);
+        device.setCreatedAt(LocalDateTime.now());
+        Device savedDevice = deviceRepository.save(device);
+
+        List<DeviceTypeTemplate> templates = deviceTypeTemplateRepository.findByDeviceType(device.getType());
+
+        for (DeviceTypeTemplate template : templates) {
+            DeviceCommand command = new DeviceCommand();
+            command.setDevice(savedDevice);
+            command.setCommandType(template.getCommandType());
+            command.setOperationType(template.getOperationType());
+            command.setMinValue(template.getMinValue());
+            command.setMaxValue(template.getMaxValue());
+            command.setDataType(template.getDataType());
+            command.setIsActive(template.getIsActiveDefault());
+            command.setCreatedAt(LocalDateTime.now());
+            deviceCommandRepository.save(command);
+        }
+
+        return savedDevice;
     }
 
     public Device updateDevice(Long id, Device updatedDevice) {
