@@ -11,4 +11,5 @@ import java.util.Optional;
 public interface DeviceCommandRepository extends JpaRepository<DeviceCommand, Long> {
     Optional<DeviceCommand> findByDeviceIdAndCommandTypeAndOperationType(Long deviceId, String commandType, String operationType);
     List<DeviceCommand> findByDeviceId(Long deviceId);
+    Optional<DeviceCommand> findByDeviceIdAndCommandTypeAndOperationTypeNot(Long deviceId, String commandType, String operationType);
 }

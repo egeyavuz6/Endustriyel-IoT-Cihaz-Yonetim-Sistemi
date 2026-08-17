@@ -219,7 +219,7 @@ class PostgresClient:
             with conn.cursor() as cursor:
                 cursor.execute(
                     "UPDATE device_commands SET current_state = %s "
-                    "WHERE device_id = %s AND command_type = 'START' AND operation_type = 'READ'",
+                    "WHERE device_id = %s AND command_type = 'START' AND operation_type = 'R/W'",
                     (state, device_id)
                 )
                 conn.commit()

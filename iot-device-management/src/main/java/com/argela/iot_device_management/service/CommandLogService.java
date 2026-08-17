@@ -103,7 +103,7 @@ public class CommandLogService {
         int count = 0;
         for (Device device : devicesInLocation) {
             DeviceCommand command = deviceCommandRepository
-                    .findByDeviceIdAndCommandTypeAndOperationType(device.getId(), commandType, "WRITE")
+                    .findByDeviceIdAndCommandTypeAndOperationTypeNot(device.getId(), commandType, "READ")
                     .orElse(null);
 
             if (command == null) continue;
