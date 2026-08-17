@@ -38,8 +38,14 @@ public class CommandLogService {
         DeviceCommand command = deviceCommandRepository.findById(commandId)
                 .orElseThrow(() -> new ResourceNotFoundException("Command not found with id: " + commandId));
 
+        if (!command.getDevice().getId().equals(deviceId)) {
+            throw new IllegalArgumentException(
+                    "Bu komut (id: " + commandId + "), belirtilen cihaza (id: " + deviceId + ") ait degil."
+            );
+        }
+
         if ("READ".equals(command.getOperationType())) {
-            throw new IllegalArgumentException("READ tipi komutlar API uzerinden gonderilemez, sadece WRITE komutlar gonderilebilir.");
+            throw new IllegalArgumentException("READ tipi komutlar API uzerinden gonderilemez...");
         }
 
         User user = findOrCreateUser(jwt);
