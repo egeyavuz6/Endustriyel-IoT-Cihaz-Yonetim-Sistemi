@@ -50,15 +50,20 @@ class TelemetryGenerator:
     def _check_alarm(self, device_id, field, value):
         threshold = field.get("threshold")
         alarm_enabled = field.get("alarm_enabled", False)
+        previous_state = field.get("alarm_state")
 
         if not alarm_enabled or threshold is None:
             return
 
         if isinstance(value, (int, float)) and value > threshold:
-            state = "ACTIVE"
-            logger.warning(f"Device_{device_id} - {field['name']} esik degeri asti! ({value})")
+            new_state = "ACTIVE"
         else:
-            state = "INACTIVE"
+            new_state = "INACTIVE"
 
-        self.postgres_client.update_alarm_state(field["id"], state)
-        self.postgres_client.upsert_device_alarm(device_id, field["id"], value, state)
+        if new_state != previous_state:
+            logger.warning(f"Device_{device_id} - {field['name']} durumu degisti: {previous_state} -> {new_state} ({value})")
+            self.postgres_client.insert_alarm_history(device_id, field["id"], new_state, value)
+            field["alarm_state"] = new_state
+
+        self.postgres_client.update_alarm_state(field["id"], new_state)
+        self.postgres_client.upsert_device_alarm(device_id, field["id"], value, new_state)

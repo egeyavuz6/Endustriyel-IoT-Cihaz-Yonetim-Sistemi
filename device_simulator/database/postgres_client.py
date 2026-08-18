@@ -278,3 +278,16 @@ class PostgresClient:
                     logger.warning(f"{affected} cihaz OFFLINE olarak isaretlendi.")
         finally:
             conn.close()
+        
+    def insert_alarm_history(self, device_id, command_id, alarm_state, value):
+        conn = self.get_connection()
+        try:
+            with conn.cursor() as cursor:
+                cursor.execute(
+                    "INSERT INTO alarm_history (device_id, command_id, alarm_state, value, created_at) "
+                    "VALUES (%s, %s, %s, %s, NOW())",
+                    (device_id, command_id, alarm_state, value)
+                )
+                conn.commit()
+        finally:
+            conn.close()
