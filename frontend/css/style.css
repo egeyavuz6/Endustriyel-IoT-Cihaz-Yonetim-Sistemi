@@ -1,12 +1,29 @@
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
 :root {
-    --primary-color: #2563eb;
-    --primary-hover: #1d4ed8;
-    --danger-color: #dc2626;
-    --success-color: #16a34a;
-    --bg-color: #f8fafc;
-    --card-bg: #ffffff;
-    --border-color: #e2e8f0;
-    --text-color: #1e293b;
+    --bg: #14181F;
+    --surface: #1C222C;
+    --surface-hover: #242B37;
+    --border: #2B3340;
+    --border-strong: #3A4353;
+
+    --text-primary: #E8EAED;
+    --text-secondary: #9AA4B5;
+    --text-muted: #6B7485;
+
+    --accent: #4FA8D8;
+    --accent-dim: #2A5F7D;
+    --success: #5FBD8A;
+    --success-dim: #24493A;
+    --warning: #E8A94F;
+    --warning-dim: #533F1F;
+    --danger: #E8664A;
+    --danger-dim: #4F2A22;
+    --offline: #5B6472;
+
+    --radius-card: 10px;
+    --radius-control: 6px;
+    --radius-pill: 999px;
 }
 
 * {
@@ -16,84 +33,273 @@
 }
 
 body {
-    font-family: 'Segoe UI', sans-serif;
-    background-color: var(--bg-color);
-    color: var(--text-color);
+    font-family: 'Inter', sans-serif;
+    background-color: var(--bg);
+    color: var(--text-primary);
+    font-size: 14px;
+    line-height: 1.5;
 }
 
-/* Navbar */
+h1, h2, h3 {
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+}
+
+h1 { font-size: 1.5rem; margin-bottom: 0.25rem; }
+h2 { font-size: 1.05rem; color: var(--text-secondary); margin: 2rem 0 1rem; text-transform: uppercase; letter-spacing: 0.04em; font-size: 0.8rem; }
+
+.mono { font-family: 'JetBrains Mono', monospace; }
+
+/* ---------- Nav ---------- */
 nav {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background-color: var(--card-bg);
-    padding: 1rem 2rem;
-    border-bottom: 1px solid var(--border-color);
-    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    background-color: var(--surface);
+    padding: 0.9rem 2rem;
+    border-bottom: 1px solid var(--border);
 }
 
-nav a {
-    color: var(--primary-color);
+nav h2 {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 1.05rem;
+    color: var(--text-primary);
+    text-transform: none;
+    letter-spacing: 0;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+}
+
+nav h2::before {
+    content: "";
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--success);
+    box-shadow: 0 0 0 3px var(--success-dim);
+}
+
+.nav-links {
+    display: flex;
+    gap: 1.75rem;
+}
+
+.nav-links a {
+    color: var(--text-secondary);
     text-decoration: none;
     font-weight: 500;
+    font-size: 0.9rem;
+    transition: color 0.15s ease;
 }
 
-/* Login Sayfası */
+.nav-links a:hover { color: var(--text-primary); }
+
+/* ---------- Buttons / Inputs ---------- */
+button {
+    background-color: var(--accent);
+    color: #0B1A24;
+    border: none;
+    padding: 0.55rem 1.1rem;
+    border-radius: var(--radius-control);
+    font-family: 'Inter', sans-serif;
+    font-weight: 600;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: background-color 0.15s ease, transform 0.1s ease;
+}
+
+button:hover { background-color: #6BBAE3; }
+button:active { transform: scale(0.98); }
+
+#logoutButton {
+    background: transparent;
+    color: var(--text-secondary);
+    border: 1px solid var(--border-strong);
+}
+
+#logoutButton:hover {
+    background: var(--surface-hover);
+    color: var(--text-primary);
+}
+
+input, select {
+    background-color: var(--bg);
+    color: var(--text-primary);
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-control);
+    padding: 0.55rem 0.75rem;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.85rem;
+}
+
+input:focus, select:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-dim);
+}
+
+input::placeholder { color: var(--text-muted); }
+
+/* ---------- Login ---------- */
 .login-container {
-    max-width: 400px;
-    margin: 100px auto;
-    padding: 2rem;
-    background-color: var(--card-bg);
-    border-radius: 12px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    max-width: 380px;
+    margin: 12vh auto;
+    padding: 2.5rem;
+    background-color: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-card);
     text-align: center;
 }
 
-.login-container h1 {
-    margin-bottom: 1rem;
-    font-size: 1.5rem;
-}
+.login-container h1 { margin-bottom: 0.5rem; }
+.login-container p { color: var(--text-secondary); margin-bottom: 1.5rem; font-size: 0.9rem; }
 
-/* Formlar */
 form {
     display: flex;
     flex-direction: column;
     gap: 0.75rem;
 }
 
-input, select, button {
-    padding: 0.6rem 1rem;
-    border-radius: 8px;
-    border: 1px solid var(--border-color);
-    font-size: 1rem;
-}
-
-button {
-    background-color: var(--primary-color);
-    color: white;
-    border: none;
-    cursor: pointer;
-    font-weight: 600;
-    transition: background-color 0.2s;
-}
-
-button:hover {
-    background-color: var(--primary-hover);
-}
-
-/* Ana içerik */
+/* ---------- Main / Layout ---------- */
 main {
-    max-width: 1000px;
+    max-width: 1100px;
     margin: 2rem auto;
-    padding: 0 1rem;
+    padding: 0 1.5rem;
 }
 
+/* ---------- Health / Metric Cards (signature element) ---------- */
+.health-cards {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
+}
+
+.health-card {
+    background-color: var(--surface);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--border-strong);
+    border-radius: var(--radius-card);
+    padding: 1.1rem 1.25rem;
+}
+
+.health-card.success { border-left-color: var(--success); }
+.health-card.muted { border-left-color: var(--offline); }
+.health-card.danger { border-left-color: var(--danger); }
+
+.health-label {
+    display: block;
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-muted);
+    margin-bottom: 0.5rem;
+}
+
+.health-value {
+    display: block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 2.1rem;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+/* ---------- Status pills ---------- */
+.status-active, .status-passive {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.8rem;
+    font-weight: 500;
+    padding: 0.2rem 0.65rem;
+    border-radius: var(--radius-pill);
+}
+
+.status-active { background: var(--success-dim); color: var(--success); }
+.status-passive { background: rgba(91,100,114,0.2); color: var(--offline); }
+
+.status-active::before, .status-passive::before {
+    content: "";
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: currentColor;
+}
+
+/* ---------- Device status list (dashboard) ---------- */
+.device-status-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.device-status-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.85rem 1.1rem;
+    background-color: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-control);
+    text-decoration: none;
+    color: var(--text-primary);
+    font-size: 0.88rem;
+    transition: border-color 0.15s ease, background-color 0.15s ease;
+}
+
+.device-status-item:hover {
+    border-color: var(--border-strong);
+    background-color: var(--surface-hover);
+}
+
+/* ---------- Alarms ---------- */
+.alarm-list { display: flex; flex-direction: column; gap: 0.6rem; }
+
+.alarm-card {
+    background-color: var(--danger-dim);
+    border-left: 3px solid var(--danger);
+    border-radius: var(--radius-control);
+    padding: 0.9rem 1.1rem;
+}
+
+.alarm-card strong { color: #FCA98F; }
+.alarm-card p { color: var(--text-secondary); font-size: 0.85rem; margin-top: 0.25rem; }
+
+.no-alarms {
+    color: var(--success);
+    font-weight: 500;
+    padding: 0.75rem 0;
+}
+
+/* ---------- Activity feed ---------- */
+.activity-list { display: flex; flex-direction: column; gap: 0.4rem; }
+
+.activity-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.65rem 1.1rem;
+    background-color: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-control);
+    font-size: 0.85rem;
+}
+
+.activity-time {
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--text-muted);
+    font-size: 0.78rem;
+}
+
+/* ---------- Device form ---------- */
 .device-form {
-    background-color: var(--card-bg);
-    padding: 1.5rem;
-    border-radius: 12px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-    margin-bottom: 2rem;
+    background-color: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-card);
+    padding: 1.25rem;
+    margin-bottom: 1.5rem;
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     gap: 0.75rem;
@@ -101,187 +307,85 @@ main {
 
 .device-form h3 {
     grid-column: 1 / -1;
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 1rem;
+    margin-bottom: 0.25rem;
 }
 
-.device-form button {
-    grid-column: 1 / -1;
-}
+.device-form button { grid-column: 1 / -1; }
 
-/* Tablo */
+/* ---------- Table ---------- */
 table {
     width: 100%;
     border-collapse: collapse;
-    background-color: var(--card-bg);
-    border-radius: 12px;
+    background-color: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-card);
     overflow: hidden;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
 }
 
 th, td {
     padding: 0.75rem 1rem;
     text-align: left;
-    border-bottom: 1px solid var(--border-color);
+    border-bottom: 1px solid var(--border);
+    font-size: 0.87rem;
 }
 
 th {
-    background-color: #f1f5f9;
+    background-color: var(--bg);
+    color: var(--text-muted);
     font-weight: 600;
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
 }
 
-tr:hover {
-    background-color: #f8fafc;
-}
+th[onclick] { cursor: pointer; user-select: none; }
+th[onclick]:hover { color: var(--text-primary); }
 
-/* Kartlar (dashboard menü) */
-.menu-cards {
-    display: flex;
-    gap: 1rem;
-    margin-top: 1.5rem;
-}
+tr:last-child td { border-bottom: none; }
+tbody tr:hover { background-color: var(--surface-hover); }
 
-.card {
-    background-color: var(--card-bg);
-    padding: 1.5rem;
-    border-radius: 12px;
-    text-decoration: none;
-    color: var(--text-color);
-    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-    transition: transform 0.2s;
-    flex: 1;
-}
+td a { color: var(--accent); text-decoration: none; font-weight: 500; }
+td a:hover { text-decoration: underline; }
 
-.card:hover {
-    transform: translateY(-2px);
-}
-
-/* System Health Cards */
-.health-cards {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 1rem;
-    margin-bottom: 2rem;
-}
-
-.health-card {
-    background-color: var(--card-bg);
-    padding: 1.5rem;
-    border-radius: 12px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-    border-left: 4px solid var(--border-color);
-}
-
-.health-card.success {
-    border-left-color: var(--success-color);
-}
-
-.health-card.muted {
-    border-left-color: #94a3b8;
-}
-
-.health-card.danger {
-    border-left-color: var(--danger-color);
-}
-
-.health-label {
-    font-size: 0.85rem;
-    color: #64748b;
-    font-weight: 500;
-}
-
-.health-value {
-    font-size: 2rem;
-    font-weight: 700;
-}
-
-/* Alarm Cards */
-.alarm-list {
-    margin-bottom: 2rem;
-}
-
-.alarm-card {
-    background-color: #fef2f2;
-    border-left: 4px solid var(--danger-color);
-    padding: 1rem;
-    border-radius: 8px;
-    margin-bottom: 0.5rem;
-}
-
-.no-alarms {
-    color: var(--success-color);
-    font-weight: 500;
-}
-
-/* Device Status List */
-.device-status-list {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-    margin-bottom: 2rem;
-}
-
-.device-status-item {
-    display: block;
-    padding: 0.75rem 1rem;
-    background-color: var(--card-bg);
-    border-radius: 8px;
-    text-decoration: none;
-    color: var(--text-color);
-    box-shadow: 0 1px 4px rgba(0,0,0,0.05);
-    transition: transform 0.15s;
-}
-
-.device-status-item:hover {
-    transform: translateX(4px);
-}
-
-/* Recent Activity */
-.activity-list {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-}
-
-.activity-item {
-    display: flex;
-    justify-content: space-between;
-    padding: 0.75rem 1rem;
-    background-color: var(--card-bg);
-    border-radius: 8px;
-    box-shadow: 0 1px 4px rgba(0,0,0,0.05);
-    font-size: 0.9rem;
-}
-
-.activity-time {
-    color: #64748b;
-    font-size: 0.8rem;
-}
-
+/* ---------- Locations ---------- */
 .location-list {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
     gap: 1rem;
-    margin-bottom: 2rem;
 }
 
 .location-card {
-    background-color: var(--card-bg);
-    padding: 1rem;
-    border-radius: 8px;
-    box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+    background-color: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-card);
+    padding: 1rem 1.1rem;
 }
-.nav-links {
+
+.location-card strong { font-family: 'Space Grotesk', sans-serif; }
+.location-card p { color: var(--text-secondary); font-size: 0.85rem; margin-top: 0.4rem; }
+
+/* ---------- Command cards (device detail) ---------- */
+.command-card {
     display: flex;
-    gap: 1.5rem;
+    align-items: center;
+    justify-content: space-between;
+    background-color: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-control);
+    padding: 0.8rem 1.1rem;
+    margin-bottom: 0.5rem;
 }
 
-.nav-links a {
-    color: var(--text-color);
-    font-weight: 500;
-}
+.command-card strong { font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; }
 
-.nav-links a:hover {
-    color: var(--primary-color);
+.current-state {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.78rem;
+    color: var(--warning);
+    background: var(--warning-dim);
+    padding: 0.15rem 0.6rem;
+    border-radius: var(--radius-pill);
+    margin: 0 0.75rem;
 }

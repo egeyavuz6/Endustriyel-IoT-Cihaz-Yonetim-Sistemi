@@ -14,41 +14,40 @@
         <a href="devices.html">Cihazlar</a>
     </div>
     <button id="logoutButton">Cikis Yap</button>
-</nav>
+    </nav>
 
     <main>
-    <h1>Cihaz Listesi</h1>
+        <h1>Cihaz Listesi</h1>
 
-    <form id="createDeviceForm" class="device-form">
-        <h3>Yeni Cihaz Ekle</h3>
-        <input type="text" id="deviceName" placeholder="Cihaz Adı" required>
-        <input type="text" id="serialNumber" placeholder="Seri Numarası" required>
-        <select id="deviceType" required>
-            <option value="SENSOR">Sensor</option>
-            <option value="ENGINE">Engine</option>
-            <option value="AC">AC</option>
-        </select>
-        <input type="text" id="location" placeholder="Lokasyon" required>
-        <button type="submit">Cihaz Ekle</button>
-    </form>
-    <p id="formMessage"></p>
+        <form id="createDeviceForm" class="device-form">
+            <h3>Yeni Cihaz Ekle</h3>
+            <input type="text" id="deviceName" placeholder="Cihaz Adi" required>
+            <input type="text" id="serialNumber" placeholder="Seri Numarasi" required>
+            <select id="deviceType" required>
+                <option value="SENSOR">Sensor</option>
+                <option value="AC">Klima (AC)</option>
+                <option value="ENGINE">Motor</option>
+            </select>
+            <input type="text" id="location" placeholder="Lokasyon" required>
+            <button type="submit">Cihaz Ekle</button>
+        </form>
+        <p id="formMessage"></p>
 
-    <table>
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>İsim</th>
-                <th>Seri No</th>
-                <th>Tip</th>
-                <th>Lokasyon</th>
-                <th>Durum</th>
-                <th>İşlem</th>
-            </tr>
-        </thead>
-        <tbody id="devicesTableBody">
-        </tbody>
-    </table>
-</main>
+        <table>
+            <thead>
+                <tr>
+                    <th onclick="sortTable('id')">ID</th>
+                    <th onclick="sortTable('name')">Isim</th>
+                    <th onclick="sortTable('serialNumber')">Seri No</th>
+                    <th onclick="sortTable('type')">Tip</th>
+                    <th onclick="sortTable('location')">Lokasyon</th>
+                    <th onclick="sortTable('status')">Durum</th>
+                    <th>Islem</th>
+                </tr>
+            </thead>
+            <tbody id="devicesTableBody"></tbody>
+        </table>
+    </main>
 
     <script src="js/api.js"></script>
     <script src="js/devices.js"></script>

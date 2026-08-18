@@ -85,7 +85,6 @@ def main():
         if time.time() - last_refresh >= device_refresh_interval:
             # logger.info("Cihaz listesi kontrol ediliyor...")
 
-            postgres_client.check_and_update_offline_devices()
             current_devices = postgres_client.get_all_devices()
             existing_ids = set(device_threads.keys())
 

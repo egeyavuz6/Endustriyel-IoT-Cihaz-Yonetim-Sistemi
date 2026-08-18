@@ -31,6 +31,10 @@ public class DeviceController {
         return deviceService.getAllDevices();
     }
 
+    @GetMapping("/with-status")
+    public List<Map<String, Object>> getAllDevicesWithStatus() {
+        return deviceService.getAllDevicesWithStatus();
+    }
     @GetMapping("/{id}")
     public Device getDeviceById(@PathVariable Long id) {
         return deviceService.getDeviceById(id);

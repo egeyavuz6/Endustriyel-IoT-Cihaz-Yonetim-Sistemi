@@ -69,6 +69,12 @@ class PostgresClient:
                     "WHERE device_id = %s AND command_type = 'POWER_ON' AND operation_type = 'R/W'",
                     (state, device_id)
                 )
+                if status == "ACTIVE":
+                    cursor.execute(
+                        "UPDATE devices SET last_seen_at = NOW(), connection_status = 'ONLINE' "
+                        "WHERE id = %s",
+                        (device_id,)
+                    )
                 conn.commit()
         finally:
             conn.close()
