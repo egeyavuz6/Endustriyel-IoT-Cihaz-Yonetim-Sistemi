@@ -33,9 +33,6 @@ public class DeviceCommand {
     @Column(name = "data_type")
     private String dataType;
 
-    @Column(name = "threshold_value")
-    private Double thresholdValue;
-
     @Column(name = "alarm_state")
     private String alarmState;
 
@@ -47,4 +44,16 @@ public class DeviceCommand {
 
     @Column(name = "created_at")
     private LocalDateTime createdAt;
+
+    @Column(name = "alarm_check_type")
+    private String alarmCheckType;
+
+    @Column(name = "alarm_min_threshold")
+    private String alarmMinThreshold;
+
+    @Column(name = "alarm_max_threshold")
+    private String alarmMaxThreshold;
+
+    @Column(name = "possible_values")
+    private String possibleValues;
 }

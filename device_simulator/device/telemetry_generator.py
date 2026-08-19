@@ -17,6 +17,10 @@ class TelemetryGenerator:
         if operational_state == "STOPPED":
             return None
 
+        if len(self.fields_config) == 0:
+            logger.warning(f"{device_id} numarali id ye sahip cihaz icin aktif veri bulunamadi. Telemetri uretilemiyor.")
+            return None
+
         point = Point("device_telemetry").tag("device_id", str(device_id))
 
         for field in self.fields_config:
@@ -44,25 +48,64 @@ class TelemetryGenerator:
             return random.randint(int(field["min"]), int(field["max"]))
         elif data_type == "BOOLEAN":
             return random.choice([True, False])
+        elif data_type == "STRING":
+            possible = field.get("possible_values")
+            if possible:
+                return random.choice(possible.split(","))
+            return "UNKNOWN"
         else:
             return round(random.uniform(field["min"], field["max"]), 2)
 
     def _check_alarm(self, device_id, field, value):
-        threshold = field.get("threshold")
         alarm_enabled = field.get("alarm_enabled", False)
+        check_type = field.get("alarm_check_type", "OUT_OF_RANGE")
         previous_state = field.get("alarm_state")
+        data_type = field.get("data_type", "FLOAT")
 
-        if not alarm_enabled or threshold is None:
+        if not alarm_enabled:
             return
 
-        if isinstance(value, (int, float)) and value > threshold:
-            new_state = "ACTIVE"
-        else:
-            new_state = "INACTIVE"
+        min_raw = field.get("alarm_min_threshold")
+        max_raw = field.get("alarm_max_threshold")
+
+        def cast(raw):
+            if raw is None:
+                return None
+            if data_type == "STRING":
+                return str(raw)
+            try:
+                return float(raw)
+            except (ValueError, TypeError):
+                return None
+
+        min_t = cast(min_raw)
+        max_t = cast(max_raw)
+        compare_value = str(value) if data_type == "STRING" else value
+
+        is_alarm = False
+
+        if check_type == "OUT_OF_RANGE":
+            if min_t is not None and compare_value < min_t:
+                is_alarm = True
+            if max_t is not None and compare_value > max_t:
+                is_alarm = True
+
+        elif check_type == "IN_RANGE":
+            if min_t is not None and max_t is not None:
+                is_alarm = min_t <= compare_value <= max_t
+            elif min_t is not None:
+                is_alarm = compare_value >= min_t
+            elif max_t is not None:
+                is_alarm = compare_value <= max_t
+
+        new_state = "ACTIVE" if is_alarm else "INACTIVE"
 
         if new_state != previous_state:
-            logger.warning(f"Device_{device_id} - {field['name']} durumu degisti: {previous_state} -> {new_state} ({value})")
-            self.postgres_client.insert_alarm_history(device_id, field["id"], new_state, value)
+            logger.warning(f"Device_{device_id} - {field['name']} durumu degisti: {previous_state} -> {new_state} ({value}, tip: {check_type})")
+            if new_state == "ACTIVE":
+                self.postgres_client.open_alarm(device_id, field["id"], value)
+            else:
+                self.postgres_client.close_alarm(device_id, field["id"], value)
             field["alarm_state"] = new_state
 
         self.postgres_client.update_alarm_state(field["id"], new_state)

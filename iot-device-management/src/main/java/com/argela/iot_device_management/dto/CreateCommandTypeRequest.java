@@ -9,5 +9,7 @@ public class CreateCommandTypeRequest {
     private String operationType;
     private Double minValue;
     private Double maxValue;
+    private String dataType;
+    private String possibleValues;
     private Boolean isActive;
 }

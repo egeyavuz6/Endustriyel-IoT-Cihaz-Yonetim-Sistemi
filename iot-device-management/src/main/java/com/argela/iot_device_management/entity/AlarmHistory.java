@@ -22,11 +22,14 @@ public class AlarmHistory {
     @JoinColumn(name = "command_id", nullable = false)
     private DeviceCommand command;
 
-    @Column(name = "alarm_state", nullable = false)
-    private String alarmState;
-
-    private Double value;
+    private String value;
 
     @Column(name = "created_at")
     private OffsetDateTime createdAt;
+
+    @Column(name = "clear_value")
+    private String clearValue;
+
+    @Column(name = "cleared_at")
+    private OffsetDateTime clearedAt;
 }
