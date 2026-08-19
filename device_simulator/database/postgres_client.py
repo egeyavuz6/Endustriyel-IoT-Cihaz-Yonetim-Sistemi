@@ -131,7 +131,8 @@ class PostgresClient:
             with conn.cursor(cursor_factory=RealDictCursor) as cursor:
                 cursor.execute(
                     "SELECT id, command_type, min_value, max_value, data_type, "
-                    "threshold_value, alarm_state, alarm_enabled "
+                    "alarm_state, alarm_enabled, alarm_check_type, "
+                    "alarm_min_threshold, alarm_max_threshold, possible_values "
                     "FROM device_commands "
                     "WHERE device_id = %s AND operation_type = 'READ' AND is_active = TRUE",
                     (device_id,)
@@ -144,9 +145,12 @@ class PostgresClient:
                         "min": row["min_value"],
                         "max": row["max_value"],
                         "data_type": row["data_type"],
-                        "threshold": row["threshold_value"],
                         "alarm_state": row["alarm_state"],
-                        "alarm_enabled": row["alarm_enabled"]
+                        "alarm_enabled": row["alarm_enabled"],
+                        "alarm_check_type": row["alarm_check_type"],
+                        "alarm_min_threshold": row["alarm_min_threshold"],
+                        "alarm_max_threshold": row["alarm_max_threshold"],
+                        "possible_values": row["possible_values"]
                     }
                     for row in rows
                 ]
@@ -241,7 +245,7 @@ class PostgresClient:
                     "VALUES (%s, %s, %s, %s, NOW()) "
                     "ON CONFLICT (device_id, command_id) "
                     "DO UPDATE SET current_value = %s, alarm_state = %s, updated_at = NOW()",
-                    (device_id, command_id, value, alarm_state, value, alarm_state)
+                    (device_id, command_id, str(value), alarm_state, str(value), alarm_state)
                 )
                 conn.commit()
         finally:
@@ -276,5 +280,32 @@ class PostgresClient:
                 conn.commit()
                 if affected > 0:
                     logger.warning(f"{affected} cihaz OFFLINE olarak isaretlendi.")
+        finally:
+            conn.close()
+
+    def open_alarm(self, device_id, command_id, value):
+        conn = self.get_connection()
+        try:
+            with conn.cursor() as cursor:
+                cursor.execute(
+                    "INSERT INTO alarm_history (device_id, command_id, value, created_at) "
+                    "VALUES (%s, %s, %s, NOW())",
+                    (device_id, command_id, str(value))
+                )
+                conn.commit()
+        finally:
+            conn.close()
+
+
+    def close_alarm(self, device_id, command_id, clear_value):
+        conn = self.get_connection()
+        try:
+            with conn.cursor() as cursor:
+                cursor.execute(
+                    "UPDATE alarm_history SET clear_value = %s, cleared_at = NOW() "
+                    "WHERE device_id = %s AND command_id = %s AND cleared_at IS NULL",
+                    (str(clear_value), device_id, command_id)
+                )
+                conn.commit()
         finally:
             conn.close()

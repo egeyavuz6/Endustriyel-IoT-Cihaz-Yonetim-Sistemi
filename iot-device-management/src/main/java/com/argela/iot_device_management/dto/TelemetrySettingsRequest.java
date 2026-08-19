@@ -4,7 +4,10 @@ import lombok.Data;
 
 @Data
 public class TelemetrySettingsRequest {
-    private Double thresholdValue;
     private Boolean alarmEnabled;
     private Boolean isActive;
+    private String alarmCheckType;
+    private String alarmMinThreshold;
+    private String alarmMaxThreshold;
+    private String possibleValues;
 }
