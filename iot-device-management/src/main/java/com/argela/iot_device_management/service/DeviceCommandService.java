@@ -114,7 +114,7 @@ public class DeviceCommandService {
         }
         if (request.getPossibleValues() != null) {
             if (!"STRING".equals(command.getDataType())){
-                throw new IllegalArgumentException("STRING data tipine sahip verilere sadece possible values girisi yapilabilir.");
+                throw new IllegalArgumentException("STRING olmayan data possible values girisi yapilamaz.");
             }
         }
         if (request.getAlarmEnabled() != null) {
