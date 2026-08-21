@@ -2,6 +2,7 @@ package com.argela.iot_device_management.config;
 
 import com.influxdb.client.InfluxDBClient;
 import com.influxdb.client.InfluxDBClientFactory;
+import com.influxdb.client.WriteApi;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -17,6 +18,11 @@ public class InfluxDBConfig {
 
     @Value("${influxdb.org}")
     private String org;
+
+    @Bean
+    public WriteApi writeApi(InfluxDBClient influxDBClient) {
+        return influxDBClient.getWriteApi();
+    }
 
     @Bean
     public InfluxDBClient influxDBClient() {
