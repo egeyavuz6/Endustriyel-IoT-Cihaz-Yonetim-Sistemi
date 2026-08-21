@@ -1,4 +1,43 @@
 services:
+  simulator1:
+    image: pai-simulator:latest
+    container_name: pai-simulator1
+    ports:
+      - "8090:8080"      # HTTP / Swagger UI
+      - "1502:1502"      # Modbus TCP
+      - "1161:1161/udp"  # SNMP UDP
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/device_management
+      SPRING_DATASOURCE_USERNAME: admin
+      SPRING_DATASOURCE_PASSWORD: admin123
+      MQTT_HOSTNAME: localhost:1883
+      MQTT_USERNAME: admin
+      MQTT_PASSWORD: admin
+      MQTT_SSL: false
+      MQTT_TOPIC: osos
+      SNMP_PORT: 1161
+      MODBUS_PORT: 1502
+
+  simulator2:
+    image: pai-simulator:latest
+    container_name: pai-simulator2
+    ports:
+      - "8091:8080"      # HTTP / Swagger UI
+      - "1503:1502"      # Modbus TCP
+      - "1162:1161/udp"  # SNMP UDP
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/device_management
+      SPRING_DATASOURCE_USERNAME: admin
+      SPRING_DATASOURCE_PASSWORD: admin123
+      MQTT_HOSTNAME: localhost:1883
+      MQTT_USERNAME: admin
+      MQTT_PASSWORD: admin
+      MQTT_SSL: false
+      MQTT_TOPIC: osos
+      SNMP_PORT: 1161
+      MODBUS_PORT: 1502
+
+
   postgres:
     image: postgres:15
     ports: ["5432:5432"]
@@ -60,4 +99,4 @@ volumes:
   influxdb_data:
   grafana_data:
   keycloak_data:
-  spring_app_data:
+
