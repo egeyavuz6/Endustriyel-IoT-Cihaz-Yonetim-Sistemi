@@ -1,8 +1,10 @@
 package com.argela.iot_device_management.controller;
 
+import com.argela.iot_device_management.snmp.DockerDiscoveryService;
 import com.argela.iot_device_management.snmp.SnmpService;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.HashMap;
@@ -12,10 +14,12 @@ import java.util.Map;
 @RequestMapping("/api/snmp")
 public class SnmpTestController {
 
+
     private final SnmpService snmpService;
 
-    public SnmpTestController(SnmpService snmpService) {
+    public SnmpTestController(SnmpService snmpService, DockerDiscoveryService dockerDiscoveryService) {
         this.snmpService = snmpService;
+        this.dockerDiscoveryService = dockerDiscoveryService;
     }
 
     @GetMapping("/test-sync")
@@ -37,6 +41,15 @@ public class SnmpTestController {
         results.put("BTRY_1_VLTG", snmpService.getOid("127.0.0.1", 1162, "public", "1.3.6.1.4.1.7309.5.2.3.2.1.2.50.1.1"));
         results.put("RECT1_SN", snmpService.getOid("127.0.0.1", 1162, "public", "1.3.6.1.4.1.7309.5.2.1.2.1.6.4.1"));
         return results;
+    }
+
+    private final DockerDiscoveryService dockerDiscoveryService;
+
+    @GetMapping("/find-port")
+    public String findPort(@RequestParam String ip) {
+        return dockerDiscoveryService.findHostPortByInternalIp(ip, 1161)
+                .map(port -> "Bulunan host portu: " + port)
+                .orElse("Bulunamadi.");
     }
 
 

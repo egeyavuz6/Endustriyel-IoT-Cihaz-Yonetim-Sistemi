@@ -11,6 +11,9 @@ import org.snmp4j.transport.DefaultUdpTransportMapping;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.function.Consumer;
 
 @Service
@@ -88,6 +91,42 @@ public class SnmpService {
             snmp.send(pdu, target, null, listener);
         } catch (IOException e) {
             onResult.accept("Hata: " + e.getMessage());
+        }
+    }
+
+    public void getMultipleOidsAsync(String ip, int port, String community, List<String> oids, Consumer<Map<String, String>> onResult) {
+        CommunityTarget target = buildTarget(ip, port, community);
+
+        PDU pdu = new PDU();
+        for (String oid : oids) {
+            pdu.add(new VariableBinding(new OID(oid)));
+        }
+        pdu.setType(PDU.GET);
+
+        ResponseListener listener = new ResponseListener() {
+            @Override
+            public void onResponse(ResponseEvent event) {
+                ((Snmp) event.getSource()).cancel(event.getRequest(), this);
+
+                Map<String, String> results = new HashMap<>();
+
+                if (event.getResponse() == null) {
+                    onResult.accept(results);
+                    return;
+                }
+
+                for (VariableBinding vb : event.getResponse().getVariableBindings()) {
+                    results.put(vb.getOid().toString(), vb.getVariable().toString());
+                }
+
+                onResult.accept(results);
+            }
+        };
+
+        try {
+            snmp.send(pdu, target, null, listener);
+        } catch (IOException e) {
+            onResult.accept(new HashMap<>());
         }
     }
 }
