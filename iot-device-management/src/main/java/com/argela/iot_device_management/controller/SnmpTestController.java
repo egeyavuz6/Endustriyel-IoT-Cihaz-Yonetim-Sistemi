@@ -38,5 +38,7 @@ public class SnmpTestController {
         results.put("RECT1_SN", snmpService.getOid("127.0.0.1", 1162, "public", "1.3.6.1.4.1.7309.5.2.1.2.1.6.4.1"));
         return results;
     }
+
+
 }
 
