@@ -3,6 +3,8 @@ package com.argela.iot_device_management.snmp.entity;
 import jakarta.persistence.*;
 import lombok.Data;
 
+import java.util.List;
+
 @Entity
 @Table(name = "simulator_entity")
 @Data
@@ -24,4 +26,7 @@ public class SimulatorEntity {
 
     @Column(name = "snmp_version")
     private String snmpVersion;
+
+    @OneToMany(mappedBy = "simulator", fetch = FetchType.LAZY)
+    private List<DeviceDataEntity> dataPoints;
 }

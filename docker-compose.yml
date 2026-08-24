@@ -37,6 +37,25 @@ services:
       SNMP_PORT: 1161
       MODBUS_PORT: 1502
 
+  simulator3:
+    image: pai-simulator:latest
+    container_name: pai-simulator3
+    ports:
+      - "8092:8080"      # HTTP / Swagger UI
+      - "1504:1502"      # Modbus TCP
+      - "1163:1161/udp"  # SNMP UDP
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/device_management
+      SPRING_DATASOURCE_USERNAME: admin
+      SPRING_DATASOURCE_PASSWORD: admin123
+      MQTT_HOSTNAME: localhost:1883
+      MQTT_USERNAME: admin
+      MQTT_PASSWORD: admin
+      MQTT_SSL: false
+      MQTT_TOPIC: osos
+      SNMP_PORT: 1161
+      MODBUS_PORT: 1502
+
 
   postgres:
     image: postgres:15
