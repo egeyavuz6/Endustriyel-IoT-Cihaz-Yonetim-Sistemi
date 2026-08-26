@@ -56,6 +56,134 @@ services:
       SNMP_PORT: 1161
       MODBUS_PORT: 1502
 
+  simulator4:
+    image: pai-simulator:latest
+    container_name: pai-simulator4
+    ports:
+      - "8093:8080"      # HTTP / Swagger UI
+      - "1505:1502"      # Modbus TCP
+      - "1164:1161/udp"  # SNMP UDP
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/device_management
+      SPRING_DATASOURCE_USERNAME: admin
+      SPRING_DATASOURCE_PASSWORD: admin123
+      MQTT_HOSTNAME: localhost:1883
+      MQTT_USERNAME: admin
+      MQTT_PASSWORD: admin
+      MQTT_SSL: false
+      MQTT_TOPIC: osos
+      SNMP_PORT: 1161
+      MODBUS_PORT: 1502
+  simulator5:
+    image: pai-simulator:latest
+    container_name: pai-simulator5
+    ports:
+      - "8094:8080"      # HTTP / Swagger UI
+      - "1506:1502"      # Modbus TCP
+      - "1165:1161/udp"  # SNMP UDP
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/device_management
+      SPRING_DATASOURCE_USERNAME: admin
+      SPRING_DATASOURCE_PASSWORD: admin123
+      MQTT_HOSTNAME: localhost:1883
+      MQTT_USERNAME: admin
+      MQTT_PASSWORD: admin
+      MQTT_SSL: false
+      MQTT_TOPIC: osos
+      SNMP_PORT: 1161
+      MODBUS_PORT: 1502
+
+  simulator6:
+    image: pai-simulator:latest
+    container_name: pai-simulator6
+    ports:
+      - "8095:8080"      # HTTP / Swagger UI
+      - "1507:1502"      # Modbus TCP
+      - "1166:1161/udp"  # SNMP UDP
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/device_management
+      SPRING_DATASOURCE_USERNAME: admin
+      SPRING_DATASOURCE_PASSWORD: admin123
+      MQTT_HOSTNAME: localhost:1883
+      MQTT_USERNAME: admin
+      MQTT_PASSWORD: admin
+      MQTT_SSL: false
+      MQTT_TOPIC: osos
+      SNMP_PORT: 1161
+      MODBUS_PORT: 1502
+
+  simulator7:
+    image: pai-simulator:latest
+    container_name: pai-simulator7
+    ports:
+      - "8096:8080"      # HTTP / Swagger UI
+      - "1508:1502"      # Modbus TCP
+      - "1167:1161/udp"  # SNMP UDP
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/device_management
+      SPRING_DATASOURCE_USERNAME: admin
+      SPRING_DATASOURCE_PASSWORD: admin123
+      MQTT_HOSTNAME: localhost:1883
+      MQTT_USERNAME: admin
+      MQTT_PASSWORD: admin
+      MQTT_SSL: false
+      MQTT_TOPIC: osos
+      SNMP_PORT: 1161
+      MODBUS_PORT: 1502
+  simulator8:
+    image: pai-simulator:latest
+    container_name: pai-simulator8
+    ports:
+      - "8097:8080"      # HTTP / Swagger UI
+      - "1509:1502"      # Modbus TCP
+      - "1168:1161/udp"  # SNMP UDP
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/device_management
+      SPRING_DATASOURCE_USERNAME: admin
+      SPRING_DATASOURCE_PASSWORD: admin123
+      MQTT_HOSTNAME: localhost:1883
+      MQTT_USERNAME: admin
+      MQTT_PASSWORD: admin
+      MQTT_SSL: false
+      MQTT_TOPIC: osos
+      SNMP_PORT: 1161
+      MODBUS_PORT: 1502
+  simulator9:
+    image: pai-simulator:latest
+    container_name: pai-simulator9
+    ports:
+      - "8098:8080"      # HTTP / Swagger UI
+      - "1510:1502"      # Modbus TCP
+      - "1169:1161/udp"  # SNMP UDP
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/device_management
+      SPRING_DATASOURCE_USERNAME: admin
+      SPRING_DATASOURCE_PASSWORD: admin123
+      MQTT_HOSTNAME: localhost:1883
+      MQTT_USERNAME: admin
+      MQTT_PASSWORD: admin
+      MQTT_SSL: false
+      MQTT_TOPIC: osos
+      SNMP_PORT: 1161
+      MODBUS_PORT: 1502
+  simulator10:
+    image: pai-simulator:latest
+    container_name: pai-simulator10
+    ports:
+      - "8099:8080"      # HTTP / Swagger UI
+      - "1511:1502"      # Modbus TCP
+      - "1170:1161/udp"  # SNMP UDP
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/device_management
+      SPRING_DATASOURCE_USERNAME: admin
+      SPRING_DATASOURCE_PASSWORD: admin123
+      MQTT_HOSTNAME: localhost:1883
+      MQTT_USERNAME: admin
+      MQTT_PASSWORD: admin
+      MQTT_SSL: false
+      MQTT_TOPIC: osos
+      SNMP_PORT: 1161
+      MODBUS_PORT: 1502
 
   postgres:
     image: postgres:15
