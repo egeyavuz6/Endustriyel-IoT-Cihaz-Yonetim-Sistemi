@@ -22,6 +22,7 @@ public class DeviceDataEntity {
     @Column(name = "return_value")
     private String returnValue;
 
-    @Column(name = "simulator_id")
-    private Long simulatorId;
+    @ManyToOne
+    @JoinColumn(name = "simulator_id")
+    private SimulatorEntity simulator;
 }

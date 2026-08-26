@@ -8,14 +8,15 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @RestController
 @RequestMapping("/api/snmp")
 public class SnmpTestController {
 
-
     private final SnmpService snmpService;
+    private final DockerDiscoveryService dockerDiscoveryService;
 
     public SnmpTestController(SnmpService snmpService, DockerDiscoveryService dockerDiscoveryService) {
         this.snmpService = snmpService;
@@ -24,26 +25,26 @@ public class SnmpTestController {
 
     @GetMapping("/test-sync")
     public String testSync() {
-        return snmpService.getOid("127.0.0.1", 1162, "public", "1.3.6.1.4.1.7309.5.2.9.2.1.1.17.170001.4");
+        return snmpService.getOid("127.0.0.1", 1162, "public", "1.3.6.1.4.1.7309.5.2.9.2.1.1.17.170001.4")
+                .orElse("Yanit alinamadi (timeout).");
     }
 
     @GetMapping("/test-async")
     public String testAsync() {
-        snmpService.getOidAsync("127.0.0.1", 16101, "public", "1.3.6.1.2.1.1.1.0", result -> {
-            System.out.println("Async sonuc: " + result);
+        snmpService.getMultipleOidsAsync("127.0.0.1", 16101, "public", List.of("1.3.6.1.2.1.1.1.0"), results -> {
+            System.out.println("Async sonuc: " + results);
         });
         return "Istek gonderildi, sonuc konsola yazilacak.";
     }
+
     @GetMapping("/test-real-data")
     public Map<String, String> testRealData() {
         Map<String, String> results = new HashMap<>();
-        results.put("AC_GRID_R_VLTG", snmpService.getOid("127.0.0.1", 1162, "public", "1.3.6.1.4.1.7309.5.2.3.2.1.2.4.4.1"));
-        results.put("BTRY_1_VLTG", snmpService.getOid("127.0.0.1", 1162, "public", "1.3.6.1.4.1.7309.5.2.3.2.1.2.50.1.1"));
-        results.put("RECT1_SN", snmpService.getOid("127.0.0.1", 1162, "public", "1.3.6.1.4.1.7309.5.2.1.2.1.6.4.1"));
+        results.put("AC_GRID_R_VLTG", snmpService.getOid("127.0.0.1", 1162, "public", "1.3.6.1.4.1.7309.5.2.3.2.1.2.4.4.1").orElse("N/A"));
+        results.put("BTRY_1_VLTG", snmpService.getOid("127.0.0.1", 1162, "public", "1.3.6.1.4.1.7309.5.2.3.2.1.2.50.1.1").orElse("N/A"));
+        results.put("RECT1_SN", snmpService.getOid("127.0.0.1", 1162, "public", "1.3.6.1.4.1.7309.5.2.1.2.1.6.4.1").orElse("N/A"));
         return results;
     }
-
-    private final DockerDiscoveryService dockerDiscoveryService;
 
     @GetMapping("/find-port")
     public String findPort(@RequestParam String ip) {
@@ -51,7 +52,4 @@ public class SnmpTestController {
                 .map(port -> "Bulunan host portu: " + port)
                 .orElse("Bulunamadi.");
     }
-
-
 }
-

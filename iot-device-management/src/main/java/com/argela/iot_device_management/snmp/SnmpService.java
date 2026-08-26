@@ -2,6 +2,8 @@ package com.argela.iot_device_management.snmp;
 
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.snmp4j.*;
 import org.snmp4j.event.ResponseEvent;
 import org.snmp4j.event.ResponseListener;
@@ -14,11 +16,13 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Consumer;
 
 @Service
 public class SnmpService {
 
+    private static final Logger log = LoggerFactory.getLogger(SnmpService.class);
     private Snmp snmp;
 
     @PostConstruct
@@ -26,12 +30,18 @@ public class SnmpService {
         TransportMapping<?> transport = new DefaultUdpTransportMapping();
         snmp = new Snmp(transport);
         transport.listen();
+        log.info("SNMP Servisi UDP portu üzerinde başlatıldı.");
     }
 
     @PreDestroy
-    public void shutdown() throws IOException {
+    public void shutdown() {
         if (snmp != null) {
-            snmp.close();
+            try {
+                snmp.close();
+                log.info("SNMP Servisi kapatıldı.");
+            } catch (IOException e) {
+                log.error("SNMP servisi kapatılırken hata oluştu: {}", e.getMessage());
+            }
         }
     }
 
@@ -45,63 +55,38 @@ public class SnmpService {
         return target;
     }
 
-    private PDU buildGetPdu(String oid) {
-        PDU pdu = new PDU();
-        pdu.add(new VariableBinding(new OID(oid)));
-        pdu.setType(PDU.GET);
-        return pdu;
-    }
-
-    public String getOid(String ip, int port, String community, String oid) {
-        try {
-            CommunityTarget target = buildTarget(ip, port, community);
-            PDU pdu = buildGetPdu(oid);
-
-            ResponseEvent response = snmp.get(pdu, target);
-
-            if (response.getResponse() == null) {
-                return "Yanit alinamadi (timeout).";
-            }
-
-            return response.getResponse().getVariableBindings().get(0).toString();
-
-        } catch (IOException e) {
-            return "Hata: " + e.getMessage();
-        }
-    }
-
-    public void getOidAsync(String ip, int port, String community, String oid, Consumer<String> onResult) {
-        CommunityTarget target = buildTarget(ip, port, community);
-        PDU pdu = buildGetPdu(oid);
-
-        ResponseListener listener = new ResponseListener() {
-            @Override
-            public void onResponse(ResponseEvent event) {
-                ((Snmp) event.getSource()).cancel(event.getRequest(), this);
-
-                if (event.getResponse() == null) {
-                    onResult.accept("Yanit alinamadi (timeout).");
-                } else {
-                    onResult.accept(event.getResponse().getVariableBindings().get(0).toString());
-                }
-            }
-        };
-
-        try {
-            snmp.send(pdu, target, null, listener);
-        } catch (IOException e) {
-            onResult.accept("Hata: " + e.getMessage());
-        }
-    }
-
-    public void getMultipleOidsAsync(String ip, int port, String community, List<String> oids, Consumer<Map<String, String>> onResult) {
-        CommunityTarget target = buildTarget(ip, port, community);
-
+    private PDU buildGetPdu(List<String> oids) {
         PDU pdu = new PDU();
         for (String oid : oids) {
             pdu.add(new VariableBinding(new OID(oid)));
         }
         pdu.setType(PDU.GET);
+        return pdu;
+    }
+
+    public Optional<String> getOid(String ip, int port, String community, String oid) {
+        try {
+            CommunityTarget target = buildTarget(ip, port, community);
+            PDU pdu = buildGetPdu(List.of(oid));
+
+            ResponseEvent response = snmp.get(pdu, target);
+
+            if (response.getResponse() == null || response.getResponse().getVariableBindings().isEmpty()) {
+                log.warn("SNMP yanıt alınamadı (Timeout). IP: {}:{}", ip, port);
+                return Optional.empty();
+            }
+
+            return Optional.ofNullable(response.getResponse().getVariableBindings().get(0).getVariable().toString());
+
+        } catch (IOException e) {
+            log.error("SNMP GET isteği sırasında hata: {}", e.getMessage());
+            return Optional.empty();
+        }
+    }
+
+    public void getMultipleOidsAsync(String ip, int port, String community, List<String> oids, Consumer<Map<String, String>> onResult) {
+        CommunityTarget target = buildTarget(ip, port, community);
+        PDU pdu = buildGetPdu(oids);
 
         ResponseListener listener = new ResponseListener() {
             @Override
@@ -111,12 +96,15 @@ public class SnmpService {
                 Map<String, String> results = new HashMap<>();
 
                 if (event.getResponse() == null) {
+                    log.warn("Asenkron SNMP yanıt alınamadı (Timeout). IP: {}:{}", ip, port);
                     onResult.accept(results);
                     return;
                 }
 
                 for (VariableBinding vb : event.getResponse().getVariableBindings()) {
-                    results.put(vb.getOid().toString(), vb.getVariable().toString());
+                    if (vb != null && vb.getVariable() != null) {
+                        results.put(vb.getOid().toString(), vb.getVariable().toString());
+                    }
                 }
 
                 onResult.accept(results);
@@ -126,6 +114,7 @@ public class SnmpService {
         try {
             snmp.send(pdu, target, null, listener);
         } catch (IOException e) {
+            log.error("Asenkron SNMP isteği gönderilemedi: {}", e.getMessage());
             onResult.accept(new HashMap<>());
         }
     }
